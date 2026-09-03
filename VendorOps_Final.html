@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Vendor Operations Intelligence</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090b;--bg2:#0f1117;--bg3:#161b24;--bg4:#1c2230;--bg5:#222a38;
+  --bo:#252d3d;--bo2:#2f3a50;
+  --t1:#f0f2f6;--t2:#8b93a8;--t3:#4e5870;
+  --ac:#10e8b8;--ac2:#0090f0;--red:#f04438;
+  --green:#22c55e;--yel:#f5c518;--org:#f97316;
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);font-size:13px;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bo2);border-radius:4px}
+/* LOGIN */
+.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#0a1f2e,var(--bg) 70%)}
+.lc{background:var(--bg2);border:1px solid var(--bo);border-radius:16px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.licon{width:54px;height:54px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
+.ltitle{font-size:22px;font-weight:700;text-align:center;margin-bottom:4px}
+.lsub{font-size:12px;color:var(--t3);text-align:center;margin-bottom:32px}
+.lfield{margin-bottom:16px}
+.llabel{display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.linput{width:100%;background:var(--bg3);border:1px solid var(--bo);border-radius:8px;padding:11px 14px;color:var(--t1);font-family:var(--font);font-size:13px;outline:none;transition:border .15s}
+.linput:focus{border-color:var(--ac)}
+.lbtn{width:100%;background:linear-gradient(135deg,var(--ac),#0ad4a0);color:#000;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.lbtn:hover{opacity:.9}
+.lerr{background:rgba(240,68,56,.1);border:1px solid rgba(240,68,56,.35);border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-top:12px;text-align:center}
+/* APP LAYOUT */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--bo);padding:0 18px;display:flex;align-items:center;height:52px;flex-shrink:0;gap:10px}
+.tb-brand{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ac);letter-spacing:2.5px;text-transform:uppercase;margin-right:10px;white-space:nowrap}
+.tb-pill{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.tb-pill.admin{background:rgba(0,144,240,.15);color:#60a5fa;border:1px solid rgba(0,144,240,.3)}
+.tb-pill.vendor{background:rgba(16,232,184,.1);color:var(--ac);border:1px solid rgba(16,232,184,.25)}
+.tb-user{font-size:12px;color:var(--t2)}
+.tb-date{font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto;margin-right:10px;white-space:nowrap}
+.tb-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0}
+.tb-out{background:transparent;border:1px solid var(--bo);color:var(--t3);border-radius:6px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.tb-out:hover{border-color:var(--red);color:var(--red)}
+.nav{background:var(--bg2);border-bottom:1px solid var(--bo);padding:0 18px;display:flex;gap:1px;flex-shrink:0;overflow-x:auto}
+.ntab{padding:12px 15px;font-size:12px;font-weight:500;color:var(--t3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px}
+.ntab:hover{color:var(--t1)}
+.ntab.active{color:var(--ac);border-bottom-color:var(--ac)}
+.nbadge{background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:18px}
+/* KPI */
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin-bottom:20px}
+.kcard{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.kcard::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--ac))}
+.kcard-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.kcard-val{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;color:var(--kc,var(--ac))}
+.kcard-sub{font-size:10px;color:var(--t3);margin-top:6px}
+/* SECTION */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.sh-t{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t2)}
+.sh-r{display:flex;align-items:center;gap:8px}
+/* TABLE */
+.tw{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead tr{border-bottom:1px solid var(--bo)}
+th{padding:10px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;color:var(--t3);text-transform:uppercase;white-space:nowrap;background:var(--bg3)}
+tbody tr{border-bottom:1px solid var(--bo);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg3)}
+td{padding:9px 12px;font-size:12px;white-space:nowrap}
+.tc{font-family:var(--mono);font-size:11px}
+/* BADGES */
+.b{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.b-completed{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-pending{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
+.b-delayed{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+.b-high{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+.b-medium{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
+.b-low{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
+.b-overdue{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+.b-today{background:#0a1628;color:#60a5fa;border:1px solid #1e40af}
+.b-upcoming{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
+.b-yes{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-no{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+.b-excellent{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-good{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
+.b-risky{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
+.b-poor{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+/* SCORE */
+.sbar{display:flex;align-items:center;gap:8px}
+.strack{flex:1;height:4px;background:var(--bg5);border-radius:2px;min-width:44px;overflow:hidden}
+.sfill{height:100%;border-radius:2px}
+.snum{font-family:var(--mono);font-size:12px;font-weight:600;min-width:24px}
+/* FORM */
+.fi{background:var(--bg3);border:1px solid var(--bo);border-radius:6px;padding:8px 10px;color:var(--t1);font-family:var(--font);font-size:12px;outline:none;transition:border .15s;width:100%}
+.fi:focus{border-color:var(--ac)}
+select.fi option{background:var(--bg3)}
+.fl{display:flex;flex-direction:column;gap:4px}
+.fl label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px;margin-bottom:14px}
+/* BUTTONS */
+.btn{padding:8px 15px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s}
+.btn-p{background:linear-gradient(135deg,var(--ac),#0ad4a0);color:#000}
+.btn-p:hover{opacity:.9}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--bo)}
+.btn-g:hover{border-color:var(--bo2);color:var(--t1)}
+.btn-r{background:transparent;color:var(--red);border:1px solid rgba(240,68,56,.3)}
+.btn-r:hover{background:rgba(240,68,56,.1)}
+.ia{cursor:pointer;opacity:.45;font-size:12px;margin-left:5px;transition:opacity .1s}
+.ia:hover{opacity:1}
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filt{background:var(--bg3);border:1px solid var(--bo);border-radius:6px;padding:6px 10px;color:var(--t1);font-family:var(--font);font-size:12px;outline:none;min-width:125px}
+.filt:focus{border-color:var(--ac)}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.md{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:26px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+.md-t{font-size:15px;font-weight:700;margin-bottom:20px}
+.md-f{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bo)}
+/* DASH */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}
+@media(max-width:700px){.dg{grid-template-columns:1fr}}
+.dc{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px}
+.dc-t{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:13px}
+.ai{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bo)}
+.ai:last-child{border-bottom:none}
+.ain{font-family:var(--mono);font-size:16px;font-weight:700}
+.ir{display:grid;grid-template-columns:2fr 72px 100px 76px;gap:8px;padding:8px 0;border-bottom:1px solid var(--bo);align-items:center;font-size:12px}
+.ir:last-child{border-bottom:none}
+/* VENDOR BANNER */
+.vb{background:linear-gradient(135deg,rgba(16,232,184,.07),rgba(0,144,240,.07));border:1px solid rgba(16,232,184,.2);border-radius:12px;padding:15px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+/* EMPTY */
+.empty{text-align:center;padding:32px;color:var(--t3);font-size:12px}
+/* VENDOR CARDS */
+.vcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px}
+/* REPORT */
+.rs{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:20px;margin-bottom:15px}
+.rs-t{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:13px;font-family:var(--mono)}
+
+/* ── NOTES / COMMENTS ── */
+.notes-panel{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.notes-header{background:var(--bg3);border-bottom:1px solid var(--bo);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.notes-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2)}
+.notes-list{padding:0}
+.note-item{padding:14px 16px;border-bottom:1px solid var(--bo);position:relative}
+.note-item:last-child{border-bottom:none}
+.note-item.vendor-note{background:rgba(16,232,184,.03)}
+.note-item.admin-note{background:rgba(0,144,240,.03)}
+.note-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.note-author{font-size:11px;font-weight:700;color:var(--ac)}
+.note-author.admin-author{color:#60a5fa}
+.note-date{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.note-po{font-size:10px;padding:2px 6px;background:var(--bg4);border:1px solid var(--bo);border-radius:3px;color:var(--t2);font-family:var(--mono)}
+.note-text{font-size:13px;color:var(--t1);line-height:1.6}
+.note-del{position:absolute;top:12px;right:12px;cursor:pointer;opacity:.3;font-size:12px;transition:opacity .1s}
+.note-del:hover{opacity:1}
+.note-input-area{padding:14px 16px;border-top:1px solid var(--bo);background:var(--bg3)}
+.note-input-row{display:flex;gap:8px;margin-top:8px}
+.note-textarea{flex:1;background:var(--bg2);border:1px solid var(--bo);border-radius:8px;padding:10px 12px;color:var(--t1);font-family:var(--font);font-size:13px;outline:none;resize:none;line-height:1.5;transition:border .15s;min-height:60px}
+.note-textarea:focus{border-color:var(--ac)}
+.note-po-select{background:var(--bg2);border:1px solid var(--bo);border-radius:6px;padding:6px 10px;color:var(--t1);font-family:var(--mono);font-size:11px;outline:none;min-width:140px}
+.note-po-select:focus{border-color:var(--ac)}
+
+/* ── ADMIN PANEL ── */
+.admin-panel{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.ap-header{background:var(--bg3);border-bottom:1px solid var(--bo);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.ap-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2)}
+.ap-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--bo)}
+.ap-row:last-child{border-bottom:none}
+.ap-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ap-av.admin-av{background:linear-gradient(135deg,var(--ac2),#7c3aed);color:#fff}
+.ap-av.vendor-av{background:linear-gradient(135deg,var(--ac),#059669);color:#000}
+.ap-info{flex:1;min-width:0}
+.ap-name{font-size:13px;font-weight:600;color:var(--t1)}
+.ap-detail{font-size:11px;color:var(--t3);margin-top:1px;font-family:var(--mono)}
+.ap-role{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.ap-role.admin{background:rgba(0,144,240,.15);color:#60a5fa;border:1px solid rgba(0,144,240,.3)}
+.ap-role.vendor{background:rgba(16,232,184,.1);color:var(--ac);border:1px solid rgba(16,232,184,.25)}
+.ap-actions{display:flex;gap:6px}
+
+/* UNREAD DOT */
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useMemo,useRef,useEffect,useCallback}=React;
+
+/* ═══════════════════════════════ INITIAL DATA ══════════════════════════════ */
+
+// ── USERS (CHANGE/ADD/REMOVE HERE) ──────────────────────────────────────────
+const INIT_USERS = [
+  {id:"u1", username:"admin",         password:"Admin@2026",  role:"admin",  name:"Admin",                   av:"AD", vKey:null,                              email:"admin@company.com",   phone:""},
+  {id:"u2", username:"ops_manager",   password:"Ops@2026",    role:"admin",  name:"Operations Manager",       av:"OM", vKey:null,                              email:"ops@company.com",     phone:""},
+  {id:"u3", username:"evergreen",     password:"Ever@123",    role:"vendor", name:"Evergreen Handles",        av:"EV", vKey:"EVERGREEN HANDLES UMBERCAON",     email:"evergreen@mail.com",  phone:"9876543210"},
+  {id:"u4", username:"rohit_plastic", password:"Rohit@123",   role:"vendor", name:"Rohit Plastic Mumbai",     av:"RP", vKey:"ROHIT PLASTIC MUMBAI",            email:"rohit@plastic.com",   phone:"9823456789"},
+  {id:"u5", username:"manoj_golcha",  password:"Manoj@123",   role:"vendor", name:"Manoj Golcha",             av:"MG", vKey:"MANOJ GOLCHA",                    email:"manoj@golcha.com",    phone:"9812345678"},
+  {id:"u6", username:"mj_supply",     password:"MJ@12345",    role:"vendor", name:"MJ Supplier",              av:"MJ", vKey:"MJ",                              email:"mj@supply.com",       phone:"9801234567"},
+  {id:"u7", username:"miss_wang",     password:"Wang@123",    role:"vendor", name:"Miss Wang RMB",            av:"MW", vKey:"MISS WANG-RMB",                   email:"wang@rmb.cn",         phone:"861234567890"},
+  {id:"u8", username:"carton_skp",    password:"Carton@123",  role:"vendor", name:"Carton SKP",               av:"CS", vKey:"CARTON-SKP",                      email:"carton@skp.com",      phone:"9845678901"},
+  {id:"u9", username:"yusimeng",      password:"Yusi@123",    role:"vendor", name:"Yusimeng RMB",             av:"YU", vKey:"YUSIMENG-RMB",                    email:"yu@rmb.cn",           phone:"861987654321"},
+];
+
+// ── ORDERS ───────────────────────────────────────────────────────────────────
+const INIT_ORDERS = [
+  {poId:"PO-024-2026",lineId:1,item:"HND-3F-M FORD BLNK024",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:500,qR:100,exp:"2026-05-01",lc:"2026-05-10",ad:"",         pri:"HIGH",  rev:2},
+  {poId:"PO-024-2026",lineId:2,item:"HND-3F-M FORD BLNK068",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-01",lc:"2026-05-15",ad:"",         pri:"HIGH",  rev:3},
+  {poId:"PO-024-2026",lineId:3,item:"HND-3F-M FORD BLNK069",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:200,qR:0,  exp:"2026-05-01",lc:"2026-05-20",ad:"",         pri:"MEDIUM",rev:1},
+  {poId:"PO-024-2026",lineId:4,item:"HND-3F-M FORD SWG261",     cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:150,qR:150,exp:"2026-04-25",lc:"2026-04-25",ad:"2026-04-24",pri:"LOW",   rev:0},
+  {poId:"PO-024-2026",lineId:5,item:"HND-3F-A BLACK SILVER",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:400,qR:0,  exp:"2026-05-05",lc:"2026-05-25",ad:"",         pri:"HIGH",  rev:4},
+  {poId:"PO-025-2026",lineId:1,item:"HND-2F-GT TRAVEL BS",      cat:"HANDLES",  vendor:"MANOJ GOLCHA",               od:"2026-04-10",qO:600,qR:200,exp:"2026-04-28",lc:"2026-05-05",ad:"",         pri:"HIGH",  rev:2},
+  {poId:"PO-026-2026",lineId:1,item:"HND-2F AUTO LADIES LLY LIGHT PINK",cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:800,qR:400,exp:"2026-04-30",lc:"2026-05-08",ad:"",pri:"MEDIUM",rev:2},
+  {poId:"PO-026-2026",lineId:2,item:"HND-2F AUTO LADIES LLY DARK PINK", cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:800,qR:400,exp:"2026-04-30",lc:"2026-05-08",ad:"",pri:"MEDIUM",rev:2},
+  {poId:"PO-026-2026",lineId:3,item:"HND-2F AUTO LADIES LLY RED",       cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:500,qR:0,  exp:"2026-04-30",lc:"2026-05-12",ad:"",pri:"HIGH",  rev:3},
+  {poId:"PO-026-2026",lineId:4,item:"HND-2F AUTO LADIES LLY YELLOW",    cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:500,qR:0,  exp:"2026-04-30",lc:"2026-05-12",ad:"",pri:"HIGH",  rev:3},
+  {poId:"PO-027-2026",lineId:1, item:"HND-3F-A BLACK SILVER",  cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-18",ad:"",        pri:"MEDIUM",rev:1},
+  {poId:"PO-027-2026",lineId:2, item:"HND-3F-A TEAL",          cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-18",ad:"",        pri:"MEDIUM",rev:1},
+  {poId:"PO-027-2026",lineId:3, item:"HND-3F-A L PINK",        cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-20",ad:"",        pri:"LOW",   rev:0},
+  {poId:"PO-027-2026",lineId:4, item:"HND-3F-A BLNK262",       cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:200,qR:200,exp:"2026-05-01",lc:"2026-05-01",ad:"2026-04-30",pri:"LOW",   rev:0},
+  {poId:"PO-027-2026",lineId:5, item:"HND-3F-A BLNK267",       cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:200,qR:0,  exp:"2026-05-10",lc:"2026-05-22",ad:"",        pri:"MEDIUM",rev:2},
+  {poId:"PO-027-2026",lineId:6, item:"HND-3F-M LINE TEAL",     cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,  exp:"2026-05-10",lc:"2026-05-20",ad:"",        pri:"MEDIUM",rev:1},
+  {poId:"PO-027-2026",lineId:7, item:"HND-2F LADIES DAFFODIL BLUE",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:600,qR:300,exp:"2026-05-05",lc:"2026-05-10",ad:"",pri:"HIGH",rev:2},
+  {poId:"PO-027-2026",lineId:8, item:"HND-2F LADIES DAFFODIL BLNK262",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,exp:"2026-05-08",lc:"2026-05-18",ad:"",pri:"HIGH",rev:3},
+  {poId:"PO-027-2026",lineId:9, item:"HND-2F LADIES DAFFODIL BLNK264",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,exp:"2026-05-08",lc:"2026-05-18",ad:"",pri:"HIGH",rev:3},
+  {poId:"PO-027-2026",lineId:10,item:"HND-2F AUTO LADIES FIONA L BROWN",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:500,qR:0,exp:"2026-05-12",lc:"2026-05-20",ad:"",pri:"MEDIUM",rev:1},
+  {poId:"PO-027-2026",lineId:11,item:"HND-2F AUTO BARREL SHINE BLACK",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,exp:"2026-05-12",lc:"2026-05-22",ad:"",pri:"LOW",rev:0},
+  {poId:"PO-027-2026",lineId:12,item:"HND-3F-M LINE BLACK",    cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:300,exp:"2026-05-01",lc:"2026-05-01",ad:"2026-04-28",pri:"LOW",   rev:0},
+  {poId:"PO-2417-26", lineId:1, item:"RUNNER SET FOLDING AUTO HALF DEEP 0226",cat:"RUNNER SET",vendor:"MISS WANG-RMB",od:"2026-05-05",qO:200,qR:0,exp:"2026-05-30",lc:"2026-06-05",ad:"",pri:"HIGH",rev:2},
+  {poId:"PO-2417-26", lineId:2, item:"RUNNER SET FOLDING AUTO 9102-KK",       cat:"RUNNER SET",vendor:"MISS WANG-RMB",od:"2026-05-05",qO:150,qR:0,exp:"2026-05-30",lc:"2026-06-05",ad:"",pri:"HIGH",rev:2},
+];
+
+const INIT_FOLLOWUPS = [
+  {date:"2026-04-21",vendor:"CARTON-SKP",                 poId:"",           li:"",mode:"WHATSAPP",disc:"MC 14 DZ JIMMY BY TODAY",           nc:"2026-04-20",pc:"2026-05-01",nf:"",          sn:"COMMITMENT MISSED"},
+  {date:"2026-05-10",vendor:"MJ",                         poId:"PO-027-2026",li:"7",mode:"CALL",   disc:"Daffodil blue dispatch status",      nc:"2026-05-15",pc:"2026-05-10",nf:"2026-05-13",sn:"IN PRODUCTION"},
+  {date:"2026-05-12",vendor:"ROHIT PLASTIC MUMBAI",       poId:"PO-026-2026",li:"3",mode:"WHATSAPP",disc:"LLY Red commitment",               nc:"2026-05-18",pc:"2026-05-12",nf:"2026-05-16",sn:"WAITING MATERIAL"},
+  {date:"2026-05-14",vendor:"EVERGREEN HANDLES UMBERCAON",poId:"PO-024-2026",li:"2",mode:"CALL",   disc:"FORD BLNK068 status update",        nc:"2026-05-20",pc:"2026-05-15",nf:"2026-05-18",sn:"IN PRODUCTION"},
+  {date:"2026-05-15",vendor:"MISS WANG-RMB",              poId:"PO-2417-26", li:"1",mode:"MAIL",   disc:"Runner set dispatch timeline",       nc:"2026-06-05",pc:"2026-05-30",nf:"2026-05-22",sn:"DISPATCH IN 3 DAYS"},
+  {date:"2026-05-16",vendor:"MANOJ GOLCHA",               poId:"PO-025-2026",li:"1",mode:"CALL",   disc:"GT Travel BS pending 400 pcs",      nc:"2026-05-22",pc:"2026-05-05",nf:"2026-05-20",sn:"UNCERTAIN"},
+];
+
+const INIT_NOTES = [
+  {id:"n1",poId:"PO-027-2026",vendor:"MJ",      authorName:"MJ Supplier",  role:"vendor",text:"Daffodil Blue dispatched today. Tracking number: DHL-4892756. Expected delivery 14th May.",    time:"2026-05-10T10:15:00",readByAdmin:false},
+  {id:"n2",poId:"PO-026-2026",vendor:"ROHIT PLASTIC MUMBAI",authorName:"Rohit Plastic Mumbai",role:"vendor",text:"LLY Red material arrived at factory. Production starting today. Dispatch by 18th May confirmed.",time:"2026-05-12T14:30:00",readByAdmin:false},
+  {id:"n3",poId:"PO-2417-26", vendor:"MISS WANG-RMB",        authorName:"Miss Wang RMB",        role:"vendor",text:"Runner set production 80% complete. Will dispatch by June 5th as committed.",                  time:"2026-05-15T08:00:00",readByAdmin:false},
+];
+
+/* ═══════════════════════════════ HELPERS ═══════════════════════════════════ */
+const TODAY = new Date().toISOString().split("T")[0];
+const dd=(a,b)=>Math.round((new Date(a)-new Date(b))/86400000);
+const fmt=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"—";
+const fmtDT=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+" "+new Date(d).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true}):"";
+const uid=()=>Math.random().toString(36).slice(2,10);
+const initials=name=>name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase().slice(0,2);
+
+function calcO(o){
+  const pend=o.qO-o.qR;
+  let st="PENDING";
+  if(o.qR>=o.qO) st="COMPLETED";
+  else if(o.lc&&o.lc<TODAY) st="DELAYED";
+  const del=o.lc&&TODAY>o.lc?dd(TODAY,o.lc):0;
+  const lead=o.od?(o.ad?dd(o.ad,o.od):dd(TODAY,o.od)):0;
+  const onT=o.ad?(o.ad<=o.lc?"YES":"NO"):"";
+  const risk=del>5?"HIGH":del>2?"MEDIUM":"LOW";
+  return {...o,pend,st,del,lead,onT,risk};
+}
+function calcF(f){
+  const chg=f.nc&&f.pc?dd(f.nc,f.pc):0;
+  let fs="UPCOMING";
+  if(f.nf){if(f.nf<TODAY)fs="OVERDUE";else if(f.nf===TODAY)fs="TODAY";}
+  return {...f,chg,fs,esc:fs==="OVERDUE"?"YES":""};
+}
+function vri(vn,orders){
+  const v=orders.filter(o=>o.vendor===vn);
+  if(!v.length)return 0;
+  const t=v.length;
+  const onT=v.filter(o=>o.onT==="YES").length;
+  const qO=v.reduce((s,o)=>s+o.qO,0),qR=v.reduce((s,o)=>s+o.qR,0);
+  const aD=v.reduce((s,o)=>s+(o.del||0),0)/t;
+  const aR=v.reduce((s,o)=>s+(o.rev||0),0)/t;
+  return Math.round(((onT/t*10)+Math.min(qO?qR/qO*10:5,10)+Math.max(10-aD,0)+Math.max(10-aR*2,0))/4*10)/10;
+}
+const rc=s=>s>=8?"EXCELLENT":s>=6?"GOOD":s>=4?"RISKY":"POOR";
+
+/* ═══════════════════════════════ SMALL COMPONENTS ══════════════════════════ */
+function Bdg({v}){
+  const k=(v||"").toLowerCase().replace(/\s+/g,"");
+  const m={completed:"completed",pending:"pending",delayed:"delayed",high:"high",medium:"medium",low:"low",overdue:"overdue",today:"today",upcoming:"upcoming",yes:"yes",no:"no",excellent:"excellent",good:"good",risky:"risky",poor:"poor"};
+  return <span className={`b b-${m[k]||"pending"}`}>{v||"—"}</span>;
+}
+function SBar({score}){
+  const p=Math.min(score/10*100,100);
+  const c=score>=8?"#22c55e":score>=6?"#10e8b8":score>=4?"#f5c518":"#f04438";
+  return <div className="sbar"><div className="strack"><div className="sfill" style={{width:p+"%",background:c}}/></div><span className="snum" style={{color:c}}>{score}</span></div>;
+}
+
+/* ═══════════════════════════════ LOGIN ══════════════════════════════════════ */
+function Login({users,onLogin}){
+  const [u,su]=useState(""); const [p,sp]=useState(""); const [err,se]=useState("");
+  const go=()=>{
+    const r=users.find(x=>x.username===u.trim()&&x.password===p);
+    if(r){se("");onLogin(r);}else se("Incorrect username or password.");
+  };
+  return(
+    <div className="lp">
+      <div className="lc">
+        <div className="licon">⬡</div>
+        <div className="ltitle">Vendor Ops Intelligence</div>
+        <div className="lsub">Sign in to your account</div>
+        <div className="lfield"><label className="llabel">Username</label><input className="linput" placeholder="Enter username" value={u} onChange={e=>su(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} autoFocus/></div>
+        <div className="lfield"><label className="llabel">Password</label><input className="linput" type="password" placeholder="Enter password" value={p} onChange={e=>sp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/></div>
+        <button className="lbtn" onClick={go}>Sign In →</button>
+        {err&&<div className="lerr">{err}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ MAIN APP ═══════════════════════════════════ */
+function App(){
+  const [user,setUser]=useState(null);
+  const [tab,setTab]=useState("dashboard");
+  const [users,setUsers]=useState(INIT_USERS);
+  const [orders,setOrders]=useState(INIT_ORDERS.map(calcO));
+  const [fups,setFups]=useState(INIT_FOLLOWUPS.map(calcF));
+  const [notes,setNotes]=useState(INIT_NOTES);
+  const [showOM,setShowOM]=useState(false);
+  const [showFM,setShowFM]=useState(false);
+  const [editOI,setEditOI]=useState(null);
+  const [editFI,setEditFI]=useState(null);
+  const [oF,setOF]=useState({s:"",st:"",pr:"",v:""});
+  const [fF,setFF]=useState({s:"",st:""});
+
+  const isA=user?.role==="admin";
+  const vK=user?.vKey;
+  const nowS=new Date().toLocaleDateString("en-IN",{weekday:"short",day:"2-digit",month:"short",year:"numeric"});
+
+  const co=useMemo(()=>orders,[orders]);
+  const vo=useMemo(()=>isA?co:co.filter(o=>o.vendor===vK),[co,isA,vK]);
+  const vf=useMemo(()=>isA?fups:fups.filter(f=>f.vendor===vK),[fups,isA,vK]);
+  const vends=useMemo(()=>users.filter(u=>u.role==="vendor").map(u=>({
+    vendor:u.vKey,name:u.name,cat:u.cat||"—",cp:u.name,ph:u.phone,em:u.email,
+    score:vri(u.vKey,co),risk:rc(vri(u.vKey,co))
+  })),[users,co]);
+
+  const kpis=useMemo(()=>({
+    op:vo.filter(o=>o.st!=="COMPLETED").length,
+    dl:vo.filter(o=>o.st==="DELAYED").length,
+    pq:vo.filter(o=>o.st!=="COMPLETED").reduce((s,o)=>s+(o.pend||0),0),
+    ft:vf.filter(f=>f.fs==="TODAY"||f.fs==="OVERDUE").length,
+    hr:vends.filter(v=>v.risk==="POOR"||v.risk==="RISKY").length,
+    av:vends.length?Math.round(vends.reduce((s,v)=>s+v.score,0)/vends.length*10)/10:0,
+  }),[vo,vf,vends]);
+
+  const fo=useMemo(()=>{
+    let f=vo;
+    if(oF.s) f=f.filter(o=>(o.item+o.poId+o.vendor).toLowerCase().includes(oF.s.toLowerCase()));
+    if(oF.st) f=f.filter(o=>o.st===oF.st);
+    if(oF.pr) f=f.filter(o=>o.pri===oF.pr);
+    if(oF.v&&isA) f=f.filter(o=>o.vendor===oF.v);
+    return f;
+  },[vo,oF,isA]);
+
+  const ff=useMemo(()=>{
+    let f=vf;
+    if(fF.s) f=f.filter(x=>(x.vendor+x.disc).toLowerCase().includes(fF.s.toLowerCase()));
+    if(fF.st) f=f.filter(x=>x.fs===fF.st);
+    return f;
+  },[vf,fF]);
+
+  const inc=useMemo(()=>{
+    const d7=new Date();d7.setDate(d7.getDate()+7);
+    const d7s=d7.toISOString().split("T")[0];
+    return vo.filter(o=>o.st!=="COMPLETED"&&o.lc&&o.lc<=d7s).sort((a,b)=>a.lc.localeCompare(b.lc)).slice(0,8);
+  },[vo]);
+
+  const unreadNotes=useMemo(()=>notes.filter(n=>!n.readByAdmin&&n.role==="vendor").length,[notes]);
+  const vNames=[...new Set(INIT_ORDERS.map(o=>o.vendor)),...users.filter(u=>u.role==="vendor"&&u.vKey).map(u=>u.vKey)].filter((v,i,a)=>a.indexOf(v)===i).sort();
+
+  const saveO=d=>{
+    const calc=calcO(d);
+    if(editOI!==null) setOrders(p=>p.map((o,i)=>i===editOI?calc:o));
+    else setOrders(p=>[...p,calc]);
+    setShowOM(false);setEditOI(null);
+  };
+  const saveF=d=>{
+    const calc=calcF(d);
+    if(editFI!==null) setFups(p=>p.map((f,i)=>i===editFI?calc:f));
+    else setFups(p=>[...p,calc]);
+    setShowFM(false);setEditFI(null);
+  };
+  const addNote=(note)=>setNotes(p=>[...p,{id:uid(),...note,time:new Date().toISOString(),readByAdmin:note.role==="admin"}]);
+  const deleteNote=(id)=>setNotes(p=>p.filter(n=>n.id!==id));
+  const markNotesRead=()=>setNotes(p=>p.map(n=>({...n,readByAdmin:true})));
+
+  const aTabs=[["dashboard","📊","DASHBOARD"],["orders","📦","ORDERS"],["followup","📞","FOLLOW-UPS"],["notes","📝","VENDOR NOTES"],["vendors","🏭","VENDORS"],["reports","📄","REPORTS"],["settings","⚙️","ADMIN PANEL"]];
+  const vTabs=[["dashboard","📊","DASHBOARD"],["orders","📦","MY ORDERS"],["notes","📝","MY NOTES"]];
+  const tabs=isA?aTabs:vTabs;
+
+  if(!user) return <Login users={users} onLogin={u=>{setUser(u);setTab("dashboard");}}/>;
+
+  return(
+    <div className="app">
+      <div className="topbar">
+        <span className="tb-brand">⬡ VENDOR OPS</span>
+        <span className={`tb-pill ${user.role}`}>{user.role}</span>
+        <span className="tb-user">{user.name}</span>
+        <span className="tb-date">{nowS}</span>
+        <div className="tb-av" style={{fontSize:10}}>{user.av||initials(user.name)}</div>
+        <button className="tb-out" onClick={()=>{setUser(null);setTab("dashboard");}}>Sign Out</button>
+      </div>
+      <div className="nav">
+        {tabs.map(([k,ic,l])=>(
+          <button key={k} className={`ntab${tab===k?" active":""}`} onClick={()=>{setTab(k);if(k==="notes"&&isA)markNotesRead();}}>
+            {ic} {l}
+            {k==="notes"&&unreadNotes>0&&<span className="nbadge">{unreadNotes}</span>}
+          </button>
+        ))}
+      </div>
+      <div className="main">
+        {!isA&&<div className="vb"><span style={{fontSize:22}}>🏭</span><div><div style={{fontSize:13,fontWeight:600,color:"var(--ac)"}}>{user.name}</div><div style={{fontSize:11,color:"var(--t3)"}}>Viewing your orders and posting updates</div></div></div>}
+        {tab==="dashboard"&&<Dash kpis={kpis} orders={vo} fups={vf} vends={isA?vends:vends.filter(v=>v.vendor===vK)} inc={inc} isA={isA} notes={notes} vK={vK}/>}
+        {tab==="orders"&&<OTrack orders={fo} oF={oF} setOF={setOF} vNames={vNames} isA={isA} onAdd={isA?()=>{setEditOI(null);setShowOM(true);}:null} onEdit={isA?i=>{setEditOI(i);setShowOM(true);}:null} onDel={isA?i=>setOrders(p=>p.filter((_,j)=>j!==i)):null}/>}
+        {tab==="followup"&&isA&&<FLog fups={ff} fF={fF} setFF={setFF} isA={isA} vNames={vNames} onAdd={()=>{setEditFI(null);setShowFM(true);}} onEdit={i=>{setEditFI(i);setShowFM(true);}} onDel={i=>setFups(p=>p.filter((_,j)=>j!==i))}/>}
+        {tab==="notes"&&<NotesPage notes={notes} isA={isA} user={user} vK={vK} orders={isA?co:vo} onAdd={addNote} onDelete={isA?deleteNote:null}/>}
+        {tab==="vendors"&&isA&&<VMaster vends={vends} orders={co} users={users}/>}
+        {tab==="reports"&&<Reports orders={vo} fups={vf} vends={isA?vends:vends.filter(v=>v.vendor===vK)} inc={inc} isA={isA}/>}
+        {tab==="settings"&&isA&&<AdminPanel users={users} setUsers={setUsers}/>}
+      </div>
+      {showOM&&<OModal initial={editOI!==null?orders[editOI]:null} vNames={vNames} onSave={saveO} onClose={()=>{setShowOM(false);setEditOI(null);}}/>}
+      {showFM&&<FModal initial={editFI!==null?fups[editFI]:null} vNames={vNames} onSave={saveF} onClose={()=>{setShowFM(false);setEditFI(null);}}/>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ NOTES PAGE ═════════════════════════════════ */
+function NotesPage({notes,isA,user,vK,orders,onAdd,onDelete}){
+  const [text,setText]=useState("");
+  const [selPo,setSelPo]=useState("");
+
+  const visNotes=isA?[...notes].sort((a,b)=>b.time.localeCompare(a.time)):notes.filter(n=>n.vendor===vK).sort((a,b)=>b.time.localeCompare(a.time));
+  const myOrders=[...new Set(orders.map(o=>o.poId))];
+
+  const submit=()=>{
+    if(!text.trim()) return;
+    onAdd({poId:selPo,vendor:isA?"ADMIN":vK,authorName:user.name,role:user.role,text:text.trim()});
+    setText(""); setSelPo("");
+  };
+
+  return(
+    <div>
+      <div className="sh">
+        <span className="sh-t">{isA?"Vendor Notes & Updates":"Post an Update"}</span>
+        <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{visNotes.length} notes</span>
+      </div>
+
+      {/* Input area */}
+      <div className="notes-panel">
+        <div className="notes-header">
+          <span className="notes-title">{isA?"Post Admin Note":"Post Update on Your Orders"}</span>
+        </div>
+        <div className="note-input-area">
+          <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+            <select className="note-po-select" value={selPo} onChange={e=>setSelPo(e.target.value)}>
+              <option value="">Select PO (optional)</option>
+              {myOrders.map(p=><option key={p} value={p}>{p}</option>)}
+            </select>
+            <span style={{fontSize:11,color:"var(--t3)",alignSelf:"center"}}>
+              {isA?"Admin reply / note visible to vendors":"Your update will be visible to admin"}
+            </span>
+          </div>
+          <div className="note-input-row">
+            <textarea className="note-textarea" placeholder={isA?"Write a note or reply to vendor update...":"Post a status update on your order — e.g. dispatch date, quantity shipped, delay reason..."} value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&e.ctrlKey){e.preventDefault();submit();}}}/>
+            <button className="btn btn-p" onClick={submit} style={{alignSelf:"flex-end",flexShrink:0}}>Post</button>
+          </div>
+          <div style={{fontSize:10,color:"var(--t3)",marginTop:5}}>Ctrl+Enter to post quickly</div>
+        </div>
+
+        {/* Notes list */}
+        <div className="notes-list">
+          {visNotes.length===0&&<div className="empty">No notes yet — vendors can post updates on their orders here</div>}
+          {visNotes.map(n=>(
+            <div key={n.id} className={`note-item ${n.role==="vendor"?"vendor-note":"admin-note"}`}>
+              <div className="note-meta">
+                <span className={`note-author ${n.role==="admin"?"admin-author":""}`}>
+                  {n.role==="admin"?"🔵":"🟢"} {n.authorName}
+                </span>
+                <span className="note-date">{fmtDT(n.time)}</span>
+                {n.poId&&<span className="note-po">{n.poId}</span>}
+                {isA&&n.role==="vendor"&&!n.readByAdmin&&<span style={{fontSize:9,padding:"1px 5px",background:"var(--red)",color:"#fff",borderRadius:3,fontWeight:700}}>NEW</span>}
+              </div>
+              <div className="note-text">{n.text}</div>
+              {isA&&onDelete&&<span className="note-del" onClick={()=>onDelete(n.id)} title="Delete">🗑️</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ ADMIN PANEL ════════════════════════════════ */
+function AdminPanel({users,setUsers}){
+  const [showAdd,setShowAdd]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const blank={username:"",password:"",role:"vendor",name:"",vKey:"",email:"",phone:""};
+  const [form,setForm]=useState(blank);
+  const sf=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  const save=()=>{
+    if(!form.username.trim()||!form.password.trim()||!form.name.trim()){alert("Username, password and name are required.");return;}
+    if(editId){
+      setUsers(p=>p.map(u=>u.id===editId?{...u,...form,av:initials(form.name)}:u));
+    }else{
+      if(users.find(u=>u.username===form.username.trim())){alert("Username already exists.");return;}
+      setUsers(p=>[...p,{...form,id:uid(),av:initials(form.name),username:form.username.trim()}]);
+    }
+    setShowAdd(false);setEditId(null);setForm(blank);
+  };
+
+  const del=(id)=>{
+    if(!window.confirm("Remove this user?")) return;
+    setUsers(p=>p.filter(u=>u.id!==id));
+  };
+
+  const edit=(u)=>{
+    setForm({username:u.username,password:u.password,role:u.role,name:u.name,vKey:u.vKey||"",email:u.email||"",phone:u.phone||""});
+    setEditId(u.id);setShowAdd(true);
+  };
+
+  return(
+    <div>
+      <div className="sh">
+        <span className="sh-t">Admin Panel — Manage Users</span>
+        <button className="btn btn-p" onClick={()=>{setForm(blank);setEditId(null);setShowAdd(true);}}>+ Add User</button>
+      </div>
+
+      <div style={{marginBottom:12,padding:"12px 16px",background:"rgba(0,144,240,.07)",border:"1px solid rgba(0,144,240,.2)",borderRadius:10,fontSize:12,color:"#93c5fd",lineHeight:1.7}}>
+        <strong style={{color:"#60a5fa"}}>ℹ️ How to manage users:</strong> Add new vendors, remove old ones, or edit any user's name, password, email, or phone. Changes take effect immediately for the current session. For permanent changes, edit the <code style={{fontSize:11,background:"var(--bg4)",padding:"1px 4px",borderRadius:3}}>INIT_USERS</code> array in the HTML file and save.
+      </div>
+
+      {/* Admins */}
+      <div className="admin-panel" style={{marginBottom:16}}>
+        <div className="ap-header"><span className="ap-title">🔵 Admin Accounts</span><span style={{fontSize:11,color:"var(--t3)"}}>{users.filter(u=>u.role==="admin").length} admins</span></div>
+        {users.filter(u=>u.role==="admin").map(u=>(
+          <div key={u.id} className="ap-row">
+            <div className="ap-av admin-av">{u.av||initials(u.name)}</div>
+            <div className="ap-info">
+              <div className="ap-name">{u.name}</div>
+              <div className="ap-detail">@{u.username} · {u.email||"no email"}</div>
+            </div>
+            <span className="ap-role admin">ADMIN</span>
+            <div className="ap-actions">
+              <button className="btn btn-g" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>edit(u)}>Edit</button>
+              <button className="btn btn-r" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>del(u.id)}>Remove</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Vendors */}
+      <div className="admin-panel">
+        <div className="ap-header"><span className="ap-title">🟢 Vendor Accounts</span><span style={{fontSize:11,color:"var(--t3)"}}>{users.filter(u=>u.role==="vendor").length} vendors</span></div>
+        {users.filter(u=>u.role==="vendor").map(u=>(
+          <div key={u.id} className="ap-row">
+            <div className="ap-av vendor-av">{u.av||initials(u.name)}</div>
+            <div className="ap-info">
+              <div className="ap-name">{u.name}</div>
+              <div className="ap-detail">@{u.username} · {u.vKey||"no vendor key"} · {u.email||"no email"} · {u.phone||"no phone"}</div>
+            </div>
+            <span className="ap-role vendor">VENDOR</span>
+            <div className="ap-actions">
+              <button className="btn btn-g" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>edit(u)}>Edit</button>
+              <button className="btn btn-r" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>del(u.id)}>Remove</button>
+            </div>
+          </div>
+        ))}
+        {users.filter(u=>u.role==="vendor").length===0&&<div className="empty">No vendors added yet</div>}
+      </div>
+
+      {/* Add/Edit Modal */}
+      {showAdd&&(
+        <div className="mo" onClick={e=>e.target===e.currentTarget&&(setShowAdd(false),setEditId(null))}>
+          <div className="md">
+            <div className="md-t">{editId?"Edit User":"Add New User"}</div>
+            <div className="fg">
+              <div className="fl"><label>Full Name *</label><input className="fi" value={form.name} onChange={e=>sf("name",e.target.value)} placeholder="e.g. Raj Enterprises"/></div>
+              <div className="fl"><label>Username *</label><input className="fi" value={form.username} onChange={e=>sf("username",e.target.value)} placeholder="e.g. raj_ent" disabled={!!editId}/></div>
+              <div className="fl"><label>Password *</label><input className="fi" value={form.password} onChange={e=>sf("password",e.target.value)} placeholder="e.g. Raj@2026"/></div>
+              <div className="fl"><label>Role</label>
+                <select className="fi" value={form.role} onChange={e=>sf("role",e.target.value)}>
+                  <option value="vendor">Vendor</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              {form.role==="vendor"&&<div className="fl"><label>Vendor Key (must match order data)</label><input className="fi" value={form.vKey} onChange={e=>sf("vKey",e.target.value)} placeholder="e.g. RAJ ENTERPRISES"/></div>}
+              <div className="fl"><label>Email</label><input className="fi" type="email" value={form.email} onChange={e=>sf("email",e.target.value)} placeholder="vendor@email.com"/></div>
+              <div className="fl"><label>Phone</label><input className="fi" value={form.phone} onChange={e=>sf("phone",e.target.value)} placeholder="9876543210"/></div>
+            </div>
+            {form.role==="vendor"&&<div style={{fontSize:11,color:"#fbbf24",padding:"10px 12px",background:"var(--bg3)",borderRadius:6,marginBottom:12}}>
+              ⚠️ <strong>Vendor Key</strong> must exactly match the vendor name used in orders. Example: if orders say "RAJ ENTERPRISES", the vendor key must be "RAJ ENTERPRISES" (same caps, same spelling).
+            </div>}
+            <div className="md-f">
+              <button className="btn btn-g" onClick={()=>{setShowAdd(false);setEditId(null);}}>Cancel</button>
+              <button className="btn btn-p" onClick={save}>{editId?"Save Changes":"Add User"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ DASHBOARD ══════════════════════════════════ */
+function Dash({kpis,orders,fups,vends,inc,isA,notes,vK}){
+  const ov=fups.filter(f=>f.fs==="OVERDUE");
+  const ms=fups.filter(f=>f.sn==="COMMITMENT MISSED");
+  const d3=orders.filter(o=>o.st==="DELAYED"&&(o.del||0)>3);
+  const hp=orders.filter(o=>o.st==="PENDING"&&o.pri==="HIGH");
+  const recentNotes=isA?notes.filter(n=>n.role==="vendor").sort((a,b)=>b.time.localeCompare(a.time)).slice(0,3):notes.filter(n=>n.vendor===vK).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,3);
+  return(
+    <div>
+      <div className="kgrid">
+        <div className="kcard" style={{"--kc":"#60a5fa"}}><div className="kcard-label">Open POs</div><div className="kcard-val">{kpis.op}</div><div className="kcard-sub">Active line items</div></div>
+        <div className="kcard" style={{"--kc":"#f87171"}}><div className="kcard-label">Delayed</div><div className="kcard-val">{kpis.dl}</div><div className="kcard-sub">Past committed date</div></div>
+        <div className="kcard" style={{"--kc":"#fbbf24"}}><div className="kcard-label">Pending Qty</div><div className="kcard-val">{kpis.pq.toLocaleString()}</div><div className="kcard-sub">Units outstanding</div></div>
+        <div className="kcard" style={{"--kc":"#fb923c"}}><div className="kcard-label">Follow-ups Due</div><div className="kcard-val">{kpis.ft}</div><div className="kcard-sub">Today + overdue</div></div>
+        {isA&&<div className="kcard" style={{"--kc":"#f87171"}}><div className="kcard-label">High Risk</div><div className="kcard-val">{kpis.hr}</div><div className="kcard-sub">Vendors to watch</div></div>}
+        {isA&&<div className="kcard" style={{"--kc":"#10e8b8"}}><div className="kcard-label">Avg VRI Score</div><div className="kcard-val">{kpis.av}</div><div className="kcard-sub">Out of 10</div></div>}
+      </div>
+      <div className="dg">
+        {isA&&<div className="dc">
+          <div className="dc-t">Vendor Scoreboard</div>
+          {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:"1px solid var(--bo)"}}>
+              <span style={{width:16,fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{i+1}</span>
+              <span style={{flex:1,fontSize:12,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.vendor}</span>
+              <SBar score={v.score}/><Bdg v={v.risk}/>
+            </div>
+          ))}
+        </div>}
+        <div className="dc">
+          <div className="dc-t">Action Required</div>
+          {isA&&<><div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Overdue Follow-ups</span><span className="ain" style={{color:"#f87171"}}>{ov.length}</span></div>
+          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Commitment Missed</span><span className="ain" style={{color:"#f87171"}}>{ms.length}</span></div></>}
+          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Delayed &gt; 3 Days</span><span className="ain" style={{color:"#fbbf24"}}>{d3.length}</span></div>
+          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>High Priority Pending</span><span className="ain" style={{color:"#fbbf24"}}>{hp.length}</span></div>
+        </div>
+      </div>
+      <div className="dg">
+        <div className="dc" style={{gridColumn:isA?"1 / -1":"auto"}}>
+          <div className="dc-t">Incoming This Week</div>
+          <div className="ir" style={{fontWeight:700,fontSize:10,letterSpacing:1,color:"var(--t3)",textTransform:"uppercase"}}><span>Item / Vendor</span><span>Pending</span><span>ETA</span><span>Status</span></div>
+          {inc.length===0?<div className="empty">Nothing incoming this week</div>:inc.map((o,i)=>(
+            <div key={i} className="ir">
+              <div><div style={{fontSize:12}}>{o.item}</div><div style={{fontSize:11,color:"var(--t3)"}}>{o.vendor}</div></div>
+              <div style={{fontFamily:"var(--mono)",fontSize:12}}>{o.pend}</div>
+              <div style={{fontFamily:"var(--mono)",fontSize:11}}>{fmt(o.lc)}</div>
+              <Bdg v={o.st}/>
+            </div>
+          ))}
+        </div>
+      </div>
+      {recentNotes.length>0&&<div className="dc" style={{marginBottom:20}}>
+        <div className="dc-t">{isA?"Recent Vendor Updates":"Your Recent Notes"}</div>
+        {recentNotes.map(n=>(
+          <div key={n.id} style={{padding:"10px 0",borderBottom:"1px solid var(--bo)"}}>
+            <div style={{display:"flex",gap:8,marginBottom:4,alignItems:"center"}}>
+              <span style={{fontSize:11,fontWeight:700,color:n.role==="admin"?"#60a5fa":"var(--ac)"}}>{n.authorName}</span>
+              {n.poId&&<span style={{fontSize:10,padding:"1px 6px",background:"var(--bg4)",border:"1px solid var(--bo)",borderRadius:3,color:"var(--t2)",fontFamily:"var(--mono)"}}>{n.poId}</span>}
+              <span style={{fontSize:10,color:"var(--t3)",marginLeft:"auto"}}>{fmtDT(n.time)}</span>
+            </div>
+            <div style={{fontSize:12,color:"var(--t1)",lineHeight:1.5}}>{n.text}</div>
+          </div>
+        ))}
+      </div>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ ORDER TRACKER ══════════════════════════════ */
+function OTrack({orders,oF,setOF,vNames,isA,onAdd,onEdit,onDel}){
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">{isA?"Order Tracker":"My Orders"}</span>
+        <div className="sh-r"><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{orders.length} lines</span>
+        {isA&&<button className="btn btn-p" onClick={onAdd}>+ Add PO Line</button>}</div>
+      </div>
+      <div className="filters">
+        <input className="filt" placeholder="Search item / PO…" value={oF.s} onChange={e=>setOF(f=>({...f,s:e.target.value}))}/>
+        <select className="filt" value={oF.st} onChange={e=>setOF(f=>({...f,st:e.target.value}))}><option value="">All Status</option><option>PENDING</option><option>DELAYED</option><option>COMPLETED</option></select>
+        <select className="filt" value={oF.pr} onChange={e=>setOF(f=>({...f,pr:e.target.value}))}><option value="">All Priority</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select>
+        {isA&&<select className="filt" value={oF.v} onChange={e=>setOF(f=>({...f,v:e.target.value}))}><option value="">All Vendors</option>{vNames.map(v=><option key={v}>{v}</option>)}</select>}
+        {(oF.s||oF.st||oF.pr||oF.v)&&<button className="btn btn-g" onClick={()=>setOF({s:"",st:"",pr:"",v:""})}>Clear</button>}
+      </div>
+      <div className="tw"><table>
+        <thead><tr>
+          <th>PO ID</th><th>Ln</th><th>Item</th><th>Cat</th>{isA&&<th>Vendor</th>}
+          <th>Ordered</th><th>Rcvd</th><th>Pending</th><th>Expected</th><th>Committed</th>
+          <th>Delivered</th><th>Status</th><th>Delay</th><th>Priority</th><th>Rev</th>
+          <th>Lead</th><th>OnTime</th><th>Risk</th>{isA&&<th></th>}
+        </tr></thead>
+        <tbody>
+          {orders.length===0?<tr><td colSpan={20}><div className="empty">No orders found</div></td></tr>:
+          orders.map((o,i)=>(
+            <tr key={i}>
+              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
+              <td className="tc">{o.lineId}</td>
+              <td style={{maxWidth:130,overflow:"hidden",textOverflow:"ellipsis"}}>{o.item}</td>
+              <td style={{color:"var(--t2)",fontSize:11}}>{o.cat}</td>
+              {isA&&<td style={{maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",color:"var(--t2)"}}>{o.vendor}</td>}
+              <td className="tc">{o.qO}</td><td className="tc">{o.qR}</td>
+              <td className="tc" style={{color:o.pend>0?"var(--yel)":"var(--green)"}}>{o.pend}</td>
+              <td className="tc">{fmt(o.exp)}</td><td className="tc">{fmt(o.lc)}</td>
+              <td className="tc">{fmt(o.ad)}</td>
+              <td><Bdg v={o.st}/></td>
+              <td className="tc" style={{color:o.del>0?"var(--red)":"var(--t3)"}}>{o.del||0}</td>
+              <td><Bdg v={o.pri}/></td>
+              <td className="tc">{o.rev}</td><td className="tc">{o.lead}d</td>
+              <td>{o.onT?<Bdg v={o.onT}/>:"—"}</td>
+              <td><Bdg v={o.risk}/></td>
+              {isA&&<td><span className="ia" onClick={()=>onEdit(i)}>✏️</span><span className="ia" onClick={()=>onDel(i)}>🗑️</span></td>}
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ FOLLOW-UP LOG ══════════════════════════════ */
+function FLog({fups,fF,setFF,isA,vNames,onAdd,onEdit,onDel}){
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Follow-Up Log</span>
+        <div className="sh-r"><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{fups.length} entries</span>
+        <button className="btn btn-p" onClick={onAdd}>+ Log Follow-Up</button></div>
+      </div>
+      <div className="filters">
+        <input className="filt" placeholder="Search…" value={fF.s} onChange={e=>setFF(f=>({...f,s:e.target.value}))}/>
+        <select className="filt" value={fF.st} onChange={e=>setFF(f=>({...f,st:e.target.value}))}><option value="">All Status</option><option>UPCOMING</option><option>TODAY</option><option>OVERDUE</option></select>
+        {(fF.s||fF.st)&&<button className="btn btn-g" onClick={()=>setFF({s:"",st:""})}>Clear</button>}
+      </div>
+      <div className="tw"><table>
+        <thead><tr><th>Date</th><th>Vendor</th><th>PO ID</th><th>Line</th><th>Mode</th><th>Discussion</th><th>New Commit</th><th>Prev Commit</th><th>Change</th><th>Next F/U</th><th>Status Note</th><th>F/U Status</th><th>Esc.</th><th></th></tr></thead>
+        <tbody>
+          {fups.length===0?<tr><td colSpan={14}><div className="empty">No follow-ups logged</div></td></tr>:
+          fups.map((f,i)=>(
+            <tr key={i}>
+              <td className="tc">{fmt(f.date)}</td>
+              <td style={{color:"var(--t2)",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{f.vendor}</td>
+              <td className="tc" style={{color:"var(--ac2)"}}>{f.poId||"—"}</td>
+              <td className="tc">{f.li||"—"}</td>
+              <td><span style={{fontSize:10,padding:"2px 5px",borderRadius:3,background:"var(--bg5)",color:"var(--t2)",fontWeight:600}}>{f.mode}</span></td>
+              <td style={{maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",color:"var(--t2)"}}>{f.disc}</td>
+              <td className="tc">{fmt(f.nc)}</td><td className="tc">{fmt(f.pc)}</td>
+              <td className="tc" style={{color:f.chg>0?"var(--red)":f.chg<0?"var(--green)":"var(--t3)"}}>{f.chg>0?"+"+f.chg:f.chg}</td>
+              <td className="tc">{fmt(f.nf)}</td>
+              <td style={{fontSize:11,color:"var(--t2)"}}>{f.sn}</td>
+              <td><Bdg v={f.fs}/></td>
+              <td>{f.esc?<span style={{color:"var(--red)",fontWeight:700,fontSize:11}}>YES</span>:"—"}</td>
+              <td><span className="ia" onClick={()=>onEdit(i)}>✏️</span><span className="ia" onClick={()=>onDel(i)}>🗑️</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ VENDOR MASTER ══════════════════════════════ */
+function VMaster({vends,orders,users}){
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Vendor Master</span><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{vends.length} vendors</span></div>
+      <div className="tw"><table>
+        <thead><tr><th>Vendor</th><th>Contact</th><th>Phone</th><th>Email</th><th>Avg Lead</th><th>Total</th><th>Done</th><th>VRI Score</th><th>Risk</th></tr></thead>
+        <tbody>
+          {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
+            const vO=orders.filter(o=>o.vendor===v.vendor);
+            const aL=vO.length?Math.round(vO.reduce((s,o)=>s+(o.lead||0),0)/vO.length):0;
+            return(<tr key={i}>
+              <td style={{fontWeight:600}}>{v.vendor}</td>
+              <td>{v.cp}</td>
+              <td className="tc">{v.ph||"—"}</td>
+              <td style={{color:"var(--ac2)",fontSize:11}}>{v.em||"—"}</td>
+              <td className="tc">{aL}d</td>
+              <td className="tc">{vO.length}</td>
+              <td className="tc">{vO.filter(o=>o.st==="COMPLETED").length}</td>
+              <td style={{minWidth:120}}><SBar score={v.score}/></td>
+              <td><Bdg v={v.risk}/></td>
+            </tr>);
+          })}
+        </tbody>
+      </table></div>
+      <div className="sh" style={{marginTop:8}}><span className="sh-t">Performance Cards</span></div>
+      <div className="vcards">
+        {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
+          const vO=orders.filter(o=>o.vendor===v.vendor);
+          const qO=vO.reduce((s,o)=>s+o.qO,0),qR=vO.reduce((s,o)=>s+o.qR,0);
+          return(<div key={i} className="dc">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:9}}>
+              <span style={{fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,marginRight:8}}>{v.vendor}</span>
+              <Bdg v={v.risk}/>
+            </div>
+            <SBar score={v.score}/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginTop:9}}>
+              {[["Total Lines",vO.length],["On Time",vO.filter(o=>o.onT==="YES").length],["Fulfillment %",qO?Math.round(qR/qO*100)+"%":"0%"],["Pending",vO.filter(o=>o.st!=="COMPLETED").reduce((s,o)=>s+(o.pend||0),0)]].map(([l,val],j)=>(
+                <div key={j} style={{background:"var(--bg5)",borderRadius:6,padding:"6px 9px"}}>
+                  <div style={{fontSize:10,color:"var(--t3)",marginBottom:2}}>{l}</div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:13,fontWeight:600}}>{val}</div>
+                </div>
+              ))}
+            </div>
+          </div>);
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ REPORTS ════════════════════════════════════ */
+function Reports({orders,fups,vends,inc,isA}){
+  const del=orders.filter(o=>o.st==="DELAYED").sort((a,b)=>(b.del||0)-(a.del||0));
+  const ov=fups.filter(f=>f.fs==="OVERDUE");
+  const ds=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">{isA?"Reports":"My Reports"}</span></div>
+      <div className="rs">
+        <div className="rs-t">📦 INCOMING MATERIAL REPORT — {ds}</div>
+        <div className="tw"><table>
+          <thead><tr><th>Vendor</th><th>Item</th><th>PO ID</th><th>Pending Qty</th><th>ETA</th><th>Status</th><th>Delay Days</th></tr></thead>
+          <tbody>{inc.length===0?<tr><td colSpan={7}><div className="empty">Nothing incoming</div></td></tr>:
+            inc.map((o,i)=>(<tr key={i}>
+              <td style={{color:"var(--t2)"}}>{o.vendor}</td><td>{o.item}</td>
+              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
+              <td className="tc" style={{color:"var(--yel)"}}>{o.pend}</td>
+              <td className="tc">{fmt(o.lc)}</td><td><Bdg v={o.st}/></td>
+              <td className="tc" style={{color:o.del>0?"var(--red)":"var(--t3)"}}>{o.del}</td>
+            </tr>))}</tbody>
+        </table></div>
+      </div>
+      <div className="rs">
+        <div className="rs-t">⚠️ DELAY REPORT</div>
+        <div className="tw"><table>
+          <thead><tr><th>PO ID</th><th>Item</th>{isA&&<th>Vendor</th>}<th>Committed</th><th>Delay Days</th><th>Pending</th><th>Priority</th><th>Risk</th></tr></thead>
+          <tbody>{del.length===0?<tr><td colSpan={8}><div className="empty">No delays 🎉</div></td></tr>:
+            del.map((o,i)=>(<tr key={i}>
+              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
+              <td style={{maxWidth:120,overflow:"hidden",textOverflow:"ellipsis"}}>{o.item}</td>
+              {isA&&<td style={{color:"var(--t2)"}}>{o.vendor}</td>}
+              <td className="tc">{fmt(o.lc)}</td>
+              <td className="tc" style={{color:"var(--red)",fontWeight:700}}>{o.del}</td>
+              <td className="tc">{o.pend}</td><td><Bdg v={o.pri}/></td><td><Bdg v={o.risk}/></td>
+            </tr>))}</tbody>
+        </table></div>
+      </div>
+      {isA&&<div className="rs">
+        <div className="rs-t">📊 VENDOR RELIABILITY REPORT</div>
+        <div className="tw"><table>
+          <thead><tr><th>#</th><th>Vendor</th><th>VRI Score</th><th>Risk</th><th>On-Time%</th><th>Fulfillment%</th><th>Avg Delay</th><th>Avg Rev</th></tr></thead>
+          <tbody>{[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
+            const vO=orders.filter(o=>o.vendor===v.vendor);
+            const t=vO.length;
+            const onT=t?Math.round(vO.filter(o=>o.onT==="YES").length/t*100):0;
+            const qO=vO.reduce((s,o)=>s+o.qO,0),qR=vO.reduce((s,o)=>s+o.qR,0);
+            const fill=qO?Math.round(qR/qO*100):0;
+            const aD=t?Math.round(vO.reduce((s,o)=>s+(o.del||0),0)/t*10)/10:0;
+            const aR=t?Math.round(vO.reduce((s,o)=>s+(o.rev||0),0)/t*10)/10:0;
+            return(<tr key={i}>
+              <td className="tc" style={{color:"var(--t3)"}}>{i+1}</td>
+              <td style={{fontWeight:500}}>{v.vendor}</td>
+              <td style={{minWidth:110}}><SBar score={v.score}/></td>
+              <td><Bdg v={v.risk}/></td>
+              <td className="tc">{onT}%</td><td className="tc">{fill}%</td>
+              <td className="tc" style={{color:aD>5?"var(--red)":aD>2?"var(--yel)":"var(--green)"}}>{aD}d</td>
+              <td className="tc">{aR}</td>
+            </tr>);
+          })}</tbody>
+        </table></div>
+      </div>}
+      {isA&&<div className="rs">
+        <div className="rs-t">📞 OVERDUE FOLLOW-UPS</div>
+        {ov.length===0?<div className="empty">No overdue follow-ups ✓</div>:<div className="tw"><table>
+          <thead><tr><th>Date</th><th>Vendor</th><th>PO ID</th><th>Discussion</th><th>New Commitment</th><th>Status Note</th></tr></thead>
+          <tbody>{ov.map((f,i)=>(<tr key={i}>
+            <td className="tc">{fmt(f.date)}</td>
+            <td style={{color:"var(--red)"}}>{f.vendor}</td>
+            <td className="tc" style={{color:"var(--ac2)"}}>{f.poId||"—"}</td>
+            <td style={{color:"var(--t2)"}}>{f.disc}</td>
+            <td className="tc">{fmt(f.nc)}</td>
+            <td style={{color:"var(--yel)"}}>{f.sn}</td>
+          </tr>))}</tbody>
+        </table></div>}
+      </div>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════ MODALS ══════════════════════════════════════ */
+function OModal({initial,vNames,onSave,onClose}){
+  const bl={poId:"",lineId:1,item:"",cat:"HANDLES",vendor:"",od:TODAY,qO:0,qR:0,exp:"",lc:"",ad:"",pri:"MEDIUM",rev:0};
+  const [form,setForm]=useState(initial?{poId:initial.poId,lineId:initial.lineId,item:initial.item,cat:initial.cat||"HANDLES",vendor:initial.vendor,od:initial.od||TODAY,qO:initial.qO||0,qR:initial.qR||0,exp:initial.exp||"",lc:initial.lc||"",ad:initial.ad||"",pri:initial.pri||"MEDIUM",rev:initial.rev||0}:bl);
+  const s=(k,v)=>setForm(f=>({...f,[k]:v}));
+  return(
+    <div className="mo" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="md">
+        <div className="md-t">{initial?"Edit PO Line":"Add New PO Line"}</div>
+        <div className="fg">
+          {[["poId","PO ID","text"],["lineId","Line ID","number"],["item","Item Name","text"],["od","Order Date","date"],["qO","Qty Ordered","number"],["qR","Qty Received","number"],["exp","Expected Date","date"],["lc","Last Committed","date"],["ad","Actual Delivery","date"],["rev","Revisions","number"]].map(([k,l,t])=>(
+            <div key={k} className="fl"><label>{l}</label><input className="fi" type={t} value={form[k]||""} onChange={e=>s(k,t==="number"?Number(e.target.value):e.target.value)}/></div>
+          ))}
+          <div className="fl"><label>Category</label><select className="fi" value={form.cat} onChange={e=>s("cat",e.target.value)}>{["HANDLES","PACKAGING","LABEL","COMPONENT","RUNNER SET"].map(o=><option key={o}>{o}</option>)}</select></div>
+          <div className="fl"><label>Vendor</label><select className="fi" value={form.vendor} onChange={e=>s("vendor",e.target.value)}><option value="">Select…</option>{vNames.map(v=><option key={v}>{v}</option>)}</select></div>
+          <div className="fl"><label>Priority</label><select className="fi" value={form.pri} onChange={e=>s("pri",e.target.value)}>{["HIGH","MEDIUM","LOW"].map(o=><option key={o}>{o}</option>)}</select></div>
+        </div>
+        <div className="md-f"><button className="btn btn-g" onClick={onClose}>Cancel</button><button className="btn btn-p" onClick={()=>onSave(form)}>Save</button></div>
+      </div>
+    </div>
+  );
+}
+function FModal({initial,vNames,onSave,onClose}){
+  const bl={date:TODAY,vendor:"",poId:"",li:"",mode:"CALL",disc:"",nc:"",pc:"",nf:"",sn:"IN PRODUCTION"};
+  const [form,setForm]=useState(initial?{date:initial.date||TODAY,vendor:initial.vendor||"",poId:initial.poId||"",li:initial.li||"",mode:initial.mode||"CALL",disc:initial.disc||"",nc:initial.nc||"",pc:initial.pc||"",nf:initial.nf||"",sn:initial.sn||"IN PRODUCTION"}:bl);
+  const s=(k,v)=>setForm(f=>({...f,[k]:v}));
+  return(
+    <div className="mo" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="md">
+        <div className="md-t">{initial?"Edit Follow-Up":"Log New Follow-Up"}</div>
+        <div className="fg">
+          <div className="fl"><label>Date</label><input className="fi" type="date" value={form.date} onChange={e=>s("date",e.target.value)}/></div>
+          <div className="fl"><label>Vendor</label><select className="fi" value={form.vendor} onChange={e=>s("vendor",e.target.value)}><option value="">Select…</option>{vNames.map(v=><option key={v}>{v}</option>)}</select></div>
+          <div className="fl"><label>PO ID</label><input className="fi" value={form.poId} onChange={e=>s("poId",e.target.value)}/></div>
+          <div className="fl"><label>Line ID</label><input className="fi" value={form.li} onChange={e=>s("li",e.target.value)}/></div>
+          <div className="fl"><label>Mode</label><select className="fi" value={form.mode} onChange={e=>s("mode",e.target.value)}>{["CALL","WHATSAPP","MAIL","MEETING"].map(m=><option key={m}>{m}</option>)}</select></div>
+          <div className="fl" style={{gridColumn:"span 2"}}><label>Discussion</label><input className="fi" value={form.disc} onChange={e=>s("disc",e.target.value)}/></div>
+          <div className="fl"><label>New Commitment Date</label><input className="fi" type="date" value={form.nc} onChange={e=>s("nc",e.target.value)}/></div>
+          <div className="fl"><label>Prev Commitment Date</label><input className="fi" type="date" value={form.pc} onChange={e=>s("pc",e.target.value)}/></div>
+          <div className="fl"><label>Next Follow-Up Date</label><input className="fi" type="date" value={form.nf} onChange={e=>s("nf",e.target.value)}/></div>
+          <div className="fl"><label>Status Note</label><select className="fi" value={form.sn} onChange={e=>s("sn",e.target.value)}>{["IN PRODUCTION","DISPATCH IN 3 DAYS","DISPATCHED","WAITING MATERIAL","NO RESPONSE","COMMITMENT MISSED","CONFIRMED","UNCERTAIN"].map(s=><option key={s}>{s}</option>)}</select></div>
+        </div>
+        <div className="md-f"><button className="btn btn-g" onClick={onClose}>Cancel</button><button className="btn btn-p" onClick={()=>onSave(form)}>Save</button></div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
