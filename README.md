@@ -1,208 +1,69 @@
-# Vendor Operations Intelligence System
+# FIIRS — FMCG Inventory Intelligence & Replenishment System
 
-A frontend prototype for managing **vendor operations, order tracking, follow-ups, task status, and operational KPIs** through a centralized management interface.
-
-The system was designed to address common operational problems such as scattered vendor information, manual follow-ups, unclear order status, delayed actions, and limited visibility into operational performance.
+FIIRS is a self-developed portfolio project that models how an FMCG distribution business can monitor inventory, analyse supplier performance, track purchase orders, identify operational exceptions, and prioritise replenishment decisions in one interface.
 
 ## 🚀 Live Demo
 
 **[Open Vendor Operations Intelligence System](https://ayushmaangangulywork-boop.github.io/FMCG-Inventory-Intelligence-Replenishment-System/)**
 
-### Demo Login
+> **Portfolio disclaimer:** FIIRS uses a fictional FMCG business scenario and a synthetic dataset. Company names, locations, products, suppliers, purchase orders, and financial figures are fictional. This project is for demonstration and learning purposes; it is not a production deployment.
 
-```text
-Username: admin
-Password: Admin@2026
-```
+## Business context
 
-> This is a portfolio/demo environment. The system is designed to demonstrate the workflow, interface, operational logic, and reporting concepts.
+FMCG operations typically involve many SKUs, suppliers, warehouses, stock movements, and purchase orders. Fragmented visibility can contribute to stockouts, low stock, excess inventory, slow-moving stock, and delayed deliveries.
 
----
+FIIRS brings these operational views together so a user can review inventory health, supplier delivery performance, replenishment priorities, and exception items.
 
-## 💡 Business Problem
+## What the application includes
 
-Vendor and order operations can become difficult to manage when information is distributed across spreadsheets, messages, calls, and separate tracking systems.
+- **Executive dashboard** with KPI cards, inventory-health summaries, management insights, and charts for category, warehouse, supplier, movement, and ABC views.
+- **Inventory overview** with category/status/search filters, inventory value, inventory days, reorder levels, target stock, supplier details, and CSV export.
+- **Product / SKU master** for product, category, unit-cost, safety-stock, reorder-level, target-stock, consumption, and supplier information.
+- **Stock movements** covering sales, receipts, purchases, returns, adjustments, and transfers, with filtering and CSV export.
+- **Purchase-order tracking** for ordered, received, pending, expected/actual delivery, delay days, fill rate, and status.
+- **Supplier performance** scorecards using on-time delivery, fill rate, average lead time, delayed purchase orders, score, and rating.
+- **Replenishment analysis** that calculates `Recommended Qty = Target Stock − Current Stock` and assigns `URGENT`, `REPLENISH NOW`, or `REVIEW` priorities.
+- **Stockout risk** thresholds: critical at 3 or fewer inventory days, high at 7 or fewer, and medium at 14 or fewer.
+- **Slow-moving inventory**, **excess inventory**, and **ABC inventory classification** views.
+- **Reports** for executive inventory, replenishment, stockout risk, slow-moving inventory, supplier performance, ABC analysis, excess inventory, and inventory movements.
 
-Typical problems include:
-
-- Difficulty tracking multiple vendors and orders
-- Manual follow-up management
-- Delayed or pending orders being missed
-- Limited visibility into current order status
-- Difficulty identifying operational bottlenecks
-- No centralized view of vendor performance
-- Time-consuming preparation of management reports
-
-This project demonstrates a centralized operational interface designed to improve visibility and control.
-
----
-
-## 🎯 Project Objectives
-
-The system was designed to:
-
-- Centralize vendor and order information
-- Track order progress and operational status
-- Manage vendor follow-ups and pending actions
-- Monitor priorities and deadlines
-- Provide operational KPI visibility
-- Highlight exceptions and delayed activities
-- Support management-level decision making
-- Reduce dependency on fragmented manual tracking
-
----
-
-## ⚙️ Core Features
-
-### Vendor Management
-- Vendor records
-- Vendor status
-- Contact and operational information
-- Vendor-level tracking
-
-### Order Management
-- Order creation and tracking
-- Order status monitoring
-- Priority management
-- Pending and completed orders
-- Order-level operational visibility
-
-### Follow-up Management
-- Follow-up tracking
-- Pending actions
-- Assigned responsibilities
-- Due dates and status
-- Operational action monitoring
-
-### Operational Dashboard
-- Total orders
-- Open / pending orders
-- Completed orders
-- Priority distribution
-- Vendor activity
-- Operational exceptions
-- KPI overview
-
-### Status & Workflow Tracking
-- Centralized status visibility
-- Progress tracking
-- Priority-based monitoring
-- Identification of delayed activities
-
----
-
-## 🖥️ System Concept
-
-```text
-Vendors
-   ↓
-Orders
-   ↓
-Tasks & Follow-ups
-   ↓
-Status Tracking
-   ↓
-Operational KPIs
-   ↓
-Management Visibility
-```
-
-The objective is to connect day-to-day operational activity with management-level visibility.
-
----
-
-## 🛠️ Technology
+## Technology
 
 - HTML
 - CSS
 - JavaScript
-- GitHub Pages
+- React 18 (CDN)
+- ReactDOM (CDN)
+- Babel Standalone (CDN)
+- Chart.js 4 (CDN)
 
-The project focuses primarily on **business workflow design, operational tracking, UI structure, and KPI visibility** rather than complex backend infrastructure.
+The project is a single-page, client-side application. The synthetic data is defined within `index.html`; there is no database, API, backend service, or deployment configuration in this repository.
 
----
+## Run locally
 
-## 📊 What This Project Demonstrates
+1. Clone or download this repository.
+2. Open `index.html` in a modern web browser.
+3. Use one of the sample accounts shown on the login screen.
 
-This project demonstrates practical understanding of:
+Because React, Babel, Chart.js, and the fonts load from public CDNs, an internet connection is needed for the application to load those resources.
 
-- Operations management
-- Vendor coordination
-- Order management
-- Process tracking
-- Workflow design
-- KPI definition
-- Operational reporting
-- Exception monitoring
-- Business requirements thinking
-- Dashboard/UI design
-- Process improvement
-
-It is particularly relevant to roles such as:
-
-- Business Analyst
-- Operations Analyst
-- Business Operations Analyst
-- Operations Data Analyst
-- Process Analyst
-- Supply Chain Analyst
-- Project Analyst
-- PMO Analyst
-
----
-
-## 📁 Project Structure
+## Repository structure
 
 ```text
-Vendor-Operations-Intelligence-System/
-│
-├── index.html
-├── css/
-├── js/
-├── assets/
-└── README.md
+.
+├── index.html       # Complete FIIRS application, styles, and synthetic dataset
+├── README.md        # Project overview and usage notes
+└── .gitignore       # Common local-file exclusions
 ```
 
----
+## Scope and interpretation
 
-## 🔐 Demo Access
+FIIRS supports portfolio-level exploration of FMCG inventory, supplier, purchase-order, and replenishment concepts. The generated figures and recommendations should be interpreted only within the fictional scenario represented by the in-app synthetic data.
 
-Use the following credentials to explore the prototype:
+## Suggested GitHub metadata
 
-```text
-Username: admin
-Password: Admin@2026
-```
+**Repository name:** `FMCG-Inventory-Intelligence-Replenishment-System`
 
-After logging in, explore the dashboard, vendor tracking, order management, follow-up workflows, and operational KPIs.
+**Description:** FMCG inventory intelligence system for stock monitoring, supplier performance, replenishment analysis, purchase orders, ABC analysis, and operational exception tracking.
 
----
-
-##  How to Explore
-
-For the best understanding of the project:
-
-1. Open the live demo.
-2. Log in using the demo credentials.
-3. Start with the main dashboard.
-4. Review the order and vendor information.
-5. Explore follow-up and status tracking.
-6. Review the operational KPIs.
-7. Consider how the system could replace fragmented spreadsheet-based tracking.
-
----
-
-##  Project Context
-
-This project was developed as a **self-driven portfolio project based on real-world operations and MIS requirements**.
-
-The goal was not simply to create a frontend interface, but to translate operational problems into a structured system covering:
-
-**Business Problem → Workflow → Data → Tracking → KPIs → Management Visibility**
-
----
-
-**Ayushmaan Ganguly**
-
-Business / Operations Analytics | MIS | Process Improvement | Business Analysis
-
+**Topics:** `fmcg`, `inventory-management`, `supply-chain`, `supplier-management`, `inventory-analytics`, `replenishment`, `operations-analytics`, `business-analytics`, `data-analytics`, `javascript`, `html`, `css`, `chartjs`
