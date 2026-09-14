@@ -60,10 +60,3 @@ Because React, Babel, Chart.js, and the fonts load from public CDNs, an internet
 
 FIIRS supports portfolio-level exploration of FMCG inventory, supplier, purchase-order, and replenishment concepts. The generated figures and recommendations should be interpreted only within the fictional scenario represented by the in-app synthetic data.
 
-## Suggested GitHub metadata
-
-**Repository name:** `FMCG-Inventory-Intelligence-Replenishment-System`
-
-**Description:** FMCG inventory intelligence system for stock monitoring, supplier performance, replenishment analysis, purchase orders, ABC analysis, and operational exception tracking.
-
-**Topics:** `fmcg`, `inventory-management`, `supply-chain`, `supplier-management`, `inventory-analytics`, `replenishment`, `operations-analytics`, `business-analytics`, `data-analytics`, `javascript`, `html`, `css`, `chartjs`
