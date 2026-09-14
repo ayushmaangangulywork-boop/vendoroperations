@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Vendor Operations Intelligence</title>
+<title>FIIRS — FMCG Inventory Intelligence & Replenishment System</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -14,942 +15,1414 @@
   --bg:#08090b;--bg2:#0f1117;--bg3:#161b24;--bg4:#1c2230;--bg5:#222a38;
   --bo:#252d3d;--bo2:#2f3a50;
   --t1:#f0f2f6;--t2:#8b93a8;--t3:#4e5870;
-  --ac:#10e8b8;--ac2:#0090f0;--red:#f04438;
-  --green:#22c55e;--yel:#f5c518;--org:#f97316;
+  --ac:#10e8b8;--ac2:#0090f0;
+  --red:#f04438;--green:#22c55e;--yel:#f5c518;--org:#f97316;--pur:#a855f7;
   --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
 }
 body{background:var(--bg);color:var(--t1);font-family:var(--font);font-size:13px;min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--bo2);border-radius:4px}
-/* LOGIN */
-.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#0a1f2e,var(--bg) 70%)}
-.lc{background:var(--bg2);border:1px solid var(--bo);border-radius:16px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
-.licon{width:54px;height:54px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
-.ltitle{font-size:22px;font-weight:700;text-align:center;margin-bottom:4px}
-.lsub{font-size:12px;color:var(--t3);text-align:center;margin-bottom:32px}
-.lfield{margin-bottom:16px}
-.llabel{display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+
+/* ── LOGIN ── */
+.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#071a28,var(--bg) 70%)}
+.lc{background:var(--bg2);border:1px solid var(--bo);border-radius:16px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.licon{width:56px;height:56px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+.ltitle{font-size:22px;font-weight:700;text-align:center;margin-bottom:3px}
+.lsub{font-size:12px;color:var(--t3);text-align:center;margin-bottom:28px}
+.lfield{margin-bottom:14px}
+.llabel{display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
 .linput{width:100%;background:var(--bg3);border:1px solid var(--bo);border-radius:8px;padding:11px 14px;color:var(--t1);font-family:var(--font);font-size:13px;outline:none;transition:border .15s}
 .linput:focus{border-color:var(--ac)}
 .lbtn{width:100%;background:linear-gradient(135deg,var(--ac),#0ad4a0);color:#000;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s}
-.lbtn:hover{opacity:.9}
-.lerr{background:rgba(240,68,56,.1);border:1px solid rgba(240,68,56,.35);border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-top:12px;text-align:center}
-/* APP LAYOUT */
-.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--bo);padding:0 18px;display:flex;align-items:center;height:52px;flex-shrink:0;gap:10px}
-.tb-brand{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ac);letter-spacing:2.5px;text-transform:uppercase;margin-right:10px;white-space:nowrap}
-.tb-pill{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
-.tb-pill.admin{background:rgba(0,144,240,.15);color:#60a5fa;border:1px solid rgba(0,144,240,.3)}
-.tb-pill.vendor{background:rgba(16,232,184,.1);color:var(--ac);border:1px solid rgba(16,232,184,.25)}
-.tb-user{font-size:12px;color:var(--t2)}
-.tb-date{font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto;margin-right:10px;white-space:nowrap}
+.lbtn:hover{opacity:.88}
+.lerr{background:rgba(240,68,56,.1);border:1px solid rgba(240,68,56,.3);border-radius:8px;padding:10px;font-size:12px;color:#f87171;margin-top:10px;text-align:center}
+.lhint{background:rgba(16,232,184,.05);border:1px solid rgba(16,232,184,.2);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:11px;color:var(--t3);line-height:1.7}
+.lhint code{background:var(--bg4);padding:1px 5px;border-radius:3px;font-family:var(--mono);color:var(--ac)}
+
+/* ── APP LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--bo);display:flex;flex-direction:column;overflow-y:auto}
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid var(--bo)}
+.sb-logo{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ac);letter-spacing:2.5px}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--t1);margin-top:3px;line-height:1.3}
+.sb-co{font-size:10.5px;color:var(--t3);margin-top:2px}
+.sb-section{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);padding:16px 16px 5px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:var(--t2);font-size:12.5px;border-left:3px solid transparent;transition:all .15s;user-select:none}
+.sb-item:hover{background:var(--bg3);color:var(--t1)}
+.sb-item.active{background:var(--bg3);color:var(--ac);border-left-color:var(--ac)}
+.sb-icon{width:16px;text-align:center;font-style:normal;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid var(--bo);font-size:10.5px;color:var(--t3);line-height:1.6}
+
+/* ── MAIN ── */
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--bo);padding:0 20px;display:flex;align-items:center;height:52px;gap:10px;flex-shrink:0}
+.tb-title{font-size:14px;font-weight:600;flex:1}
+.tb-sub{font-size:11px;color:var(--t3)}
 .tb-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0}
-.tb-out{background:transparent;border:1px solid var(--bo);color:var(--t3);border-radius:6px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.tb-out{background:transparent;border:1px solid var(--bo);color:var(--t3);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
 .tb-out:hover{border-color:var(--red);color:var(--red)}
-.nav{background:var(--bg2);border-bottom:1px solid var(--bo);padding:0 18px;display:flex;gap:1px;flex-shrink:0;overflow-x:auto}
-.ntab{padding:12px 15px;font-size:12px;font-weight:500;color:var(--t3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px}
-.ntab:hover{color:var(--t1)}
-.ntab.active{color:var(--ac);border-bottom-color:var(--ac)}
-.nbadge{background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}
-.main{flex:1;overflow-y:auto;padding:18px}
-/* KPI */
-.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin-bottom:20px}
-.kcard{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ── KPI GRID ── */
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px;margin-bottom:20px}
+.kcard{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:15px;position:relative;overflow:hidden}
 .kcard::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--ac))}
-.kcard-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-.kcard-val{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;color:var(--kc,var(--ac))}
-.kcard-sub{font-size:10px;color:var(--t3);margin-top:6px}
-/* SECTION */
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
-.sh-t{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t2)}
+.kcard-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.kcard-val{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1;color:var(--kc,var(--ac))}
+.kcard-sub{font-size:10.5px;color:var(--t3);margin-top:5px}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.sh-t{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--t2)}
 .sh-r{display:flex;align-items:center;gap:8px}
-/* TABLE */
-.tw{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:auto;margin-bottom:20px}
-table{width:100%;border-collapse:collapse;min-width:500px}
+
+/* ── TABLE ── */
+.tw{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;margin-bottom:18px}
+.tw-toolbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bo);background:var(--bg3);flex-wrap:wrap}
+.tw-count{margin-left:auto;font-size:11px;color:var(--t3);font-family:var(--mono)}
+.tw-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
 thead tr{border-bottom:1px solid var(--bo)}
-th{padding:10px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;color:var(--t3);text-transform:uppercase;white-space:nowrap;background:var(--bg3)}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;color:var(--t3);text-transform:uppercase;white-space:nowrap;background:var(--bg3)}
 tbody tr{border-bottom:1px solid var(--bo);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--bg3)}
-td{padding:9px 12px;font-size:12px;white-space:nowrap}
-.tc{font-family:var(--mono);font-size:11px}
-/* BADGES */
-.b{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.b-completed{background:#052e16;color:#4ade80;border:1px solid #166534}
-.b-pending{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
+td{padding:8px 12px;font-size:12px}
+.tc{font-family:var(--mono);font-size:11.5px}
+.tr{text-align:right}
+.tnw{white-space:nowrap}
+.bold{font-weight:600}
+
+/* ── FILTERS ── */
+.filt{background:var(--bg3);border:1px solid var(--bo);border-radius:6px;padding:6px 10px;color:var(--t1);font-family:var(--font);font-size:12px;outline:none;min-width:130px}
+.filt:focus{border-color:var(--ac)}
+select.filt option{background:var(--bg3)}
+.filt-sm{min-width:90px}
+
+/* ── BADGES ── */
+.b{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.b-oos{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
+.b-critical{background:#2a0a0a;color:#ff6b6b;border:1px solid #991b1b}
+.b-low{background:#1c1200;color:#fbbf24;border:1px solid #78350f}
+.b-healthy{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-over{background:#1a0e2e;color:#c084fc;border:1px solid #7e22ce}
+.b-urgent{background:#2a0a0a;color:#ff6b6b;border:1px solid #991b1b}
+.b-now{background:#1c1200;color:#fbbf24;border:1px solid #78350f}
+.b-review{background:#0a1628;color:#60a5fa;border:1px solid #1e40af}
+.b-adequate{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-received{background:#052e16;color:#4ade80;border:1px solid #166534}
+.b-pending{background:#1c1200;color:#fbbf24;border:1px solid #78350f}
+.b-partial{background:#0a1628;color:#60a5fa;border:1px solid #1e40af}
 .b-delayed{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
-.b-high{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
-.b-medium{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
-.b-low{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
-.b-overdue{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
-.b-today{background:#0a1628;color:#60a5fa;border:1px solid #1e40af}
-.b-upcoming{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
-.b-yes{background:#052e16;color:#4ade80;border:1px solid #166534}
-.b-no{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
 .b-excellent{background:#052e16;color:#4ade80;border:1px solid #166534}
 .b-good{background:#0e1f18;color:#34d399;border:1px solid #064e3b}
-.b-risky{background:#1c1500;color:#fbbf24;border:1px solid #78350f}
+.b-average{background:#1c1200;color:#fbbf24;border:1px solid #78350f}
 .b-poor{background:#1f0808;color:#f87171;border:1px solid #7f1d1d}
-/* SCORE */
-.sbar{display:flex;align-items:center;gap:8px}
-.strack{flex:1;height:4px;background:var(--bg5);border-radius:2px;min-width:44px;overflow:hidden}
-.sfill{height:100%;border-radius:2px}
-.snum{font-family:var(--mono);font-size:12px;font-weight:600;min-width:24px}
-/* FORM */
-.fi{background:var(--bg3);border:1px solid var(--bo);border-radius:6px;padding:8px 10px;color:var(--t1);font-family:var(--font);font-size:12px;outline:none;transition:border .15s;width:100%}
-.fi:focus{border-color:var(--ac)}
-select.fi option{background:var(--bg3)}
-.fl{display:flex;flex-direction:column;gap:4px}
-.fl label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
-.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px;margin-bottom:14px}
-/* BUTTONS */
-.btn{padding:8px 15px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s}
+.b-abc-a{background:#1b2a3b;color:var(--ac);border:1px solid rgba(16,232,184,.3)}
+.b-abc-b{background:#1a1030;color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.b-abc-c{background:#1a2010;color:#86efac;border:1px solid rgba(134,239,172,.3)}
+.b-dead{background:#2a0808;color:#fca5a5;border:1px solid #7f1d1d}
+.b-vslow{background:#1f0a00;color:#fdba74;border:1px solid #9a3412}
+.b-slow{background:#0a1628;color:#93c5fd;border:1px solid #1e3a5f}
+.b-cat{background:var(--bg4);color:var(--t2);border:1px solid var(--bo);font-size:10px;padding:1px 6px}
+
+/* ── INSIGHTS ── */
+.insights-box{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+.insights-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ac);margin-bottom:12px;font-family:var(--mono)}
+.insight-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--bo)}
+.insight-row:last-child{border-bottom:none}
+.insight-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.id-HIGH{background:var(--red)}
+.id-MEDIUM{background:var(--yel)}
+.id-INFO{background:var(--t3)}
+.insight-text{font-size:12.5px;color:var(--t2);line-height:1.5}
+
+/* ── EXCEPTIONS ── */
+.ex-item{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-bottom:1px solid var(--bo)}
+.ex-item:last-child{border-bottom:none}
+.ex-bar{width:4px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:32px}
+.ex-bar-CRITICAL{background:var(--red)}
+.ex-bar-HIGH{background:var(--org)}
+.ex-bar-MEDIUM{background:var(--ac2)}
+.ex-type{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase}
+.ex-desc{font-size:12.5px;color:var(--t1);margin:2px 0;line-height:1.4}
+.ex-action{font-size:11.5px;color:var(--t3);font-style:italic}
+.ex-sev{margin-left:auto;text-align:right;flex-shrink:0}
+
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:18px}
+.chart-box{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px}
+.chart-box.wide{grid-column:1/-1}
+.chart-title{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:12px;font-family:var(--mono)}
+.chart-wrap{position:relative}
+
+/* ── SUPPLIER CARDS ── */
+.sup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:18px}
+.sup-card{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px}
+.sup-name{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.sup-city{font-size:11px;color:var(--t3);margin-bottom:12px}
+.sup-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sup-lbl{font-size:11px;color:var(--t3)}
+.sup-val{font-size:12.5px;font-weight:600;color:var(--t1);font-family:var(--mono)}
+.prog-wrap{height:5px;background:var(--bg5);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s}
+
+/* ── ABC BAR ── */
+.abc-bar{display:flex;height:26px;border-radius:6px;overflow:hidden;gap:2px;margin-bottom:14px}
+.abc-seg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+
+/* ── REPORT ── */
+.report-card{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:18px;cursor:pointer;transition:border-color .2s,box-shadow .2s;margin-bottom:12px}
+.report-card:hover{border-color:var(--ac);box-shadow:0 0 0 1px rgba(16,232,184,.1)}
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.rep-icon{font-size:22px;margin-bottom:8px}
+.rep-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.rep-desc{font-size:11.5px;color:var(--t3);line-height:1.5}
+.rep-actions{display:flex;gap:8px;margin-top:12px}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .btn-p{background:linear-gradient(135deg,var(--ac),#0ad4a0);color:#000}
-.btn-p:hover{opacity:.9}
+.btn-p:hover{opacity:.88}
 .btn-g{background:transparent;color:var(--t2);border:1px solid var(--bo)}
 .btn-g:hover{border-color:var(--bo2);color:var(--t1)}
-.btn-r{background:transparent;color:var(--red);border:1px solid rgba(240,68,56,.3)}
-.btn-r:hover{background:rgba(240,68,56,.1)}
-.ia{cursor:pointer;opacity:.45;font-size:12px;margin-left:5px;transition:opacity .1s}
-.ia:hover{opacity:1}
-/* FILTERS */
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.filt{background:var(--bg3);border:1px solid var(--bo);border-radius:6px;padding:6px 10px;color:var(--t1);font-family:var(--font);font-size:12px;outline:none;min-width:125px}
-.filt:focus{border-color:var(--ac)}
-/* MODAL */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
-.md{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:26px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.6)}
-.md-t{font-size:15px;font-weight:700;margin-bottom:20px}
-.md-f{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bo)}
-/* DASH */
-.dg{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}
-@media(max-width:700px){.dg{grid-template-columns:1fr}}
-.dc{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:16px}
-.dc-t{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:13px}
-.ai{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bo)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* ── MISC ── */
+.empty{text-align:center;padding:36px;color:var(--t3);font-size:12.5px}
+.info-bar{background:rgba(0,144,240,.07);border:1px solid rgba(0,144,240,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#60a5fa;margin-bottom:14px;line-height:1.6}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:900px){.dg{grid-template-columns:1fr}}
+.dc{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:15px}
+.dc-t{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.ai{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bo)}
 .ai:last-child{border-bottom:none}
-.ain{font-family:var(--mono);font-size:16px;font-weight:700}
-.ir{display:grid;grid-template-columns:2fr 72px 100px 76px;gap:8px;padding:8px 0;border-bottom:1px solid var(--bo);align-items:center;font-size:12px}
-.ir:last-child{border-bottom:none}
-/* VENDOR BANNER */
-.vb{background:linear-gradient(135deg,rgba(16,232,184,.07),rgba(0,144,240,.07));border:1px solid rgba(16,232,184,.2);border-radius:12px;padding:15px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
-/* EMPTY */
-.empty{text-align:center;padding:32px;color:var(--t3);font-size:12px}
-/* VENDOR CARDS */
-.vcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px}
-/* REPORT */
-.rs{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;padding:20px;margin-bottom:15px}
-.rs-t{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:13px;font-family:var(--mono)}
-
-/* ── NOTES / COMMENTS ── */
-.notes-panel{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.notes-header{background:var(--bg3);border-bottom:1px solid var(--bo);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-.notes-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2)}
-.notes-list{padding:0}
-.note-item{padding:14px 16px;border-bottom:1px solid var(--bo);position:relative}
-.note-item:last-child{border-bottom:none}
-.note-item.vendor-note{background:rgba(16,232,184,.03)}
-.note-item.admin-note{background:rgba(0,144,240,.03)}
-.note-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-.note-author{font-size:11px;font-weight:700;color:var(--ac)}
-.note-author.admin-author{color:#60a5fa}
-.note-date{font-size:10px;color:var(--t3);font-family:var(--mono)}
-.note-po{font-size:10px;padding:2px 6px;background:var(--bg4);border:1px solid var(--bo);border-radius:3px;color:var(--t2);font-family:var(--mono)}
-.note-text{font-size:13px;color:var(--t1);line-height:1.6}
-.note-del{position:absolute;top:12px;right:12px;cursor:pointer;opacity:.3;font-size:12px;transition:opacity .1s}
-.note-del:hover{opacity:1}
-.note-input-area{padding:14px 16px;border-top:1px solid var(--bo);background:var(--bg3)}
-.note-input-row{display:flex;gap:8px;margin-top:8px}
-.note-textarea{flex:1;background:var(--bg2);border:1px solid var(--bo);border-radius:8px;padding:10px 12px;color:var(--t1);font-family:var(--font);font-size:13px;outline:none;resize:none;line-height:1.5;transition:border .15s;min-height:60px}
-.note-textarea:focus{border-color:var(--ac)}
-.note-po-select{background:var(--bg2);border:1px solid var(--bo);border-radius:6px;padding:6px 10px;color:var(--t1);font-family:var(--mono);font-size:11px;outline:none;min-width:140px}
-.note-po-select:focus{border-color:var(--ac)}
-
-/* ── ADMIN PANEL ── */
-.admin-panel{background:var(--bg2);border:1px solid var(--bo);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.ap-header{background:var(--bg3);border-bottom:1px solid var(--bo);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-.ap-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2)}
-.ap-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--bo)}
-.ap-row:last-child{border-bottom:none}
-.ap-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.ap-av.admin-av{background:linear-gradient(135deg,var(--ac2),#7c3aed);color:#fff}
-.ap-av.vendor-av{background:linear-gradient(135deg,var(--ac),#059669);color:#000}
-.ap-info{flex:1;min-width:0}
-.ap-name{font-size:13px;font-weight:600;color:var(--t1)}
-.ap-detail{font-size:11px;color:var(--t3);margin-top:1px;font-family:var(--mono)}
-.ap-role{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.ap-role.admin{background:rgba(0,144,240,.15);color:#60a5fa;border:1px solid rgba(0,144,240,.3)}
-.ap-role.vendor{background:rgba(16,232,184,.1);color:var(--ac);border:1px solid rgba(16,232,184,.25)}
-.ap-actions{display:flex;gap:6px}
-
-/* UNREAD DOT */
-.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+.ain{font-family:var(--mono);font-size:15px;font-weight:700}
+.score-bar{display:flex;align-items:center;gap:8px}
+.score-track{flex:1;height:5px;background:var(--bg5);border-radius:3px;min-width:50px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px}
+.score-num{font-family:var(--mono);font-size:12px;font-weight:600;min-width:28px}
+.col-red{color:var(--red)} .col-grn{color:var(--green)} .col-yel{color:var(--yel)} .col-ac{color:var(--ac)} .col-t3{color:var(--t3)} .col-pur{color:var(--pur)} .col-org{color:var(--org)} .col-ac2{color:var(--ac2)}
 </style>
 </head>
 <body>
 <div id="root"></div>
+<script>
+// ══════════════════════════════════════════════════════════
+//  FIIRS DATA ENGINE
+//  Vriddhi Consumer Goods Pvt. Ltd. (Fictional — Portfolio)
+// ══════════════════════════════════════════════════════════
+const COMPANY="Vriddhi Consumer Goods Pvt. Ltd.";
+const TODAY_STR=new Date().toISOString().split("T")[0];
+const LOCATIONS=[
+  {id:"WH-DEL",name:"Delhi Central Warehouse",   city:"Delhi",     type:"Primary"},
+  {id:"WH-MUM",name:"Mumbai Distribution Hub",   city:"Mumbai",    type:"Primary"},
+  {id:"WH-BLR",name:"Bangalore Regional Store",  city:"Bangalore", type:"Regional"},
+  {id:"WH-KOL",name:"Kolkata East Hub",           city:"Kolkata",   type:"Regional"},
+  {id:"WH-HYD",name:"Hyderabad Depot",            city:"Hyderabad", type:"Depot"},
+];
+const SUPPLIERS=[
+  {id:"SUP-001",name:"Agro Fresh Foods",          city:"Delhi",      lead:5,  rel:0.94,phone:"9811001001",contact:"Ramesh Gupta"},
+  {id:"SUP-002",name:"Sunrise Beverages Ltd.",    city:"Mumbai",     lead:7,  rel:0.87,phone:"9922002002",contact:"Priya Sharma"},
+  {id:"SUP-003",name:"Param Snacks Pvt. Ltd.",    city:"Ahmedabad",  lead:4,  rel:0.91,phone:"9833003003",contact:"Suresh Patel"},
+  {id:"SUP-004",name:"Himalaya Dairy Co.",         city:"Lucknow",    lead:3,  rel:0.96,phone:"9944004004",contact:"Anita Singh"},
+  {id:"SUP-005",name:"NatureCare Products",        city:"Bangalore",  lead:6,  rel:0.83,phone:"9755005005",contact:"Vikram Rao"},
+  {id:"SUP-006",name:"CleanHome Industries",       city:"Chennai",    lead:5,  rel:0.89,phone:"9666006006",contact:"Deepa Nair"},
+  {id:"SUP-007",name:"Golden Biscuits Pvt. Ltd.",  city:"Kolkata",    lead:4,  rel:0.92,phone:"9577007007",contact:"Mohan Das"},
+  {id:"SUP-008",name:"Krishi Grocery Co.",         city:"Hyderabad",  lead:3,  rel:0.97,phone:"9488008008",contact:"Kavitha Reddy"},
+  {id:"SUP-009",name:"FreshBrew Beverages",        city:"Pune",       lead:6,  rel:0.78,phone:"9399009009",contact:"Rohit Mehta"},
+  {id:"SUP-010",name:"SoftSkin Care Ltd.",         city:"Delhi",      lead:7,  rel:0.85,phone:"9200010010",contact:"Nisha Verma"},
+  {id:"SUP-011",name:"Ruchi Foods Pvt. Ltd.",      city:"Indore",     lead:5,  rel:0.90,phone:"9811011011",contact:"Ajay Kumar"},
+  {id:"SUP-012",name:"PureFarm Dairy",             city:"Jaipur",     lead:2,  rel:0.95,phone:"9922012012",contact:"Sunita Joshi"},
+  {id:"SUP-013",name:"SpiceMart Grocery",          city:"Coimbatore", lead:4,  rel:0.88,phone:"9833013013",contact:"Rajan Pillai"},
+  {id:"SUP-014",name:"ShineHome Products",         city:"Kanpur",     lead:6,  rel:0.72,phone:"9744014014",contact:"Pooja Agarwal"},
+  {id:"SUP-015",name:"QuickSnacks Co.",            city:"Varanasi",   lead:5,  rel:0.86,phone:"9655015015",contact:"Manoj Tiwari"},
+  {id:"SUP-016",name:"Vedic Herbal Care",          city:"Mysore",     lead:8,  rel:0.80,phone:"9566016016",contact:"Lakshmi Iyer"},
+  {id:"SUP-017",name:"CrunchBite Biscuits",        city:"Surat",      lead:3,  rel:0.93,phone:"9477017017",contact:"Firoz Khan"},
+  {id:"SUP-018",name:"TropiFresh Beverages",       city:"Kochi",      lead:7,  rel:0.76,phone:"9388018018",contact:"Sheela Menon"},
+  {id:"SUP-019",name:"Annapurna Foods",            city:"Allahabad",  lead:4,  rel:0.91,phone:"9299019019",contact:"Brijesh Shukla"},
+  {id:"SUP-020",name:"BrightClean Solutions",      city:"Howrah",     lead:5,  rel:0.84,phone:"9100020020",contact:"Tanya Bose"},
+];
+const SKUS=[
+  {sku:"BEV-001",name:"Sunrise Orange Juice 1L",          brand:"Sunrise",     cat:"Beverages",    subcat:"Fruit Juice",   unit:"Carton",sup:"SUP-002",cost:85, dc:18,rl:200,tgt:500, ss:80},
+  {sku:"BEV-002",name:"Sunrise Mango Nectar 500ml",       brand:"Sunrise",     cat:"Beverages",    subcat:"Fruit Juice",   unit:"Bottle",sup:"SUP-002",cost:45, dc:25,rl:300,tgt:700, ss:120},
+  {sku:"BEV-003",name:"FreshBrew Green Tea 100g",         brand:"FreshBrew",   cat:"Beverages",    subcat:"Tea",           unit:"Pack",  sup:"SUP-009",cost:120,dc:10,rl:100,tgt:250, ss:40},
+  {sku:"BEV-004",name:"FreshBrew Masala Chai 200g",       brand:"FreshBrew",   cat:"Beverages",    subcat:"Tea",           unit:"Pack",  sup:"SUP-009",cost:150,dc:14,rl:150,tgt:350, ss:60},
+  {sku:"BEV-005",name:"TropiFresh Coconut Water 250ml",   brand:"TropiFresh",  cat:"Beverages",    subcat:"Coconut Water", unit:"Can",   sup:"SUP-018",cost:35, dc:30,rl:350,tgt:800, ss:150},
+  {sku:"BEV-006",name:"Sunrise Apple Juice 1L",           brand:"Sunrise",     cat:"Beverages",    subcat:"Fruit Juice",   unit:"Carton",sup:"SUP-002",cost:90, dc:12,rl:150,tgt:400, ss:60},
+  {sku:"BEV-007",name:"TropiFresh Guava Drink 500ml",     brand:"TropiFresh",  cat:"Beverages",    subcat:"Fruit Drink",   unit:"Bottle",sup:"SUP-018",cost:40, dc:20,rl:250,tgt:600, ss:100},
+  {sku:"BEV-008",name:"FreshBrew Black Coffee 50g",       brand:"FreshBrew",   cat:"Beverages",    subcat:"Coffee",        unit:"Pack",  sup:"SUP-009",cost:180,dc:8, rl:80, tgt:200, ss:30},
+  {sku:"BEV-009",name:"Sunrise Litchi Drink 200ml",       brand:"Sunrise",     cat:"Beverages",    subcat:"Fruit Drink",   unit:"Pack",  sup:"SUP-002",cost:20, dc:35,rl:400,tgt:900, ss:160},
+  {sku:"BEV-010",name:"FreshBrew Lemon Tea 200g",         brand:"FreshBrew",   cat:"Beverages",    subcat:"Tea",           unit:"Pack",  sup:"SUP-009",cost:130,dc:9, rl:100,tgt:250, ss:40},
+  {sku:"BIS-001",name:"Golden Butter Biscuits 200g",      brand:"Golden",      cat:"Biscuits",     subcat:"Butter",        unit:"Pack",  sup:"SUP-007",cost:30, dc:35,rl:400,tgt:900, ss:150},
+  {sku:"BIS-002",name:"Golden Cream Biscuits 100g",       brand:"Golden",      cat:"Biscuits",     subcat:"Cream",         unit:"Pack",  sup:"SUP-007",cost:20, dc:45,rl:500,tgt:1100,ss:200},
+  {sku:"BIS-003",name:"CrunchBite Marie Lite 250g",       brand:"CrunchBite",  cat:"Biscuits",     subcat:"Marie",         unit:"Pack",  sup:"SUP-017",cost:25, dc:40,rl:450,tgt:1000,ss:180},
+  {sku:"BIS-004",name:"CrunchBite Digestive 400g",        brand:"CrunchBite",  cat:"Biscuits",     subcat:"Digestive",     unit:"Pack",  sup:"SUP-017",cost:55, dc:22,rl:250,tgt:600, ss:100},
+  {sku:"BIS-005",name:"Golden Chocolate Biscuits 150g",   brand:"Golden",      cat:"Biscuits",     subcat:"Chocolate",     unit:"Pack",  sup:"SUP-007",cost:40, dc:28,rl:300,tgt:700, ss:120},
+  {sku:"BIS-006",name:"CrunchBite Oat Cookies 200g",      brand:"CrunchBite",  cat:"Biscuits",     subcat:"Cookies",       unit:"Pack",  sup:"SUP-017",cost:50, dc:18,rl:200,tgt:450, ss:80},
+  {sku:"BIS-007",name:"Golden Jeera Biscuits 200g",       brand:"Golden",      cat:"Biscuits",     subcat:"Salted",        unit:"Pack",  sup:"SUP-007",cost:28, dc:30,rl:350,tgt:800, ss:130},
+  {sku:"BIS-008",name:"CrunchBite Bourbon 150g",          brand:"CrunchBite",  cat:"Biscuits",     subcat:"Cream",         unit:"Pack",  sup:"SUP-017",cost:35, dc:25,rl:280,tgt:650, ss:110},
+  {sku:"BIS-009",name:"Golden Crackers 200g",             brand:"Golden",      cat:"Biscuits",     subcat:"Crackers",      unit:"Pack",  sup:"SUP-007",cost:35, dc:22,rl:250,tgt:580, ss:100},
+  {sku:"BIS-010",name:"CrunchBite Nut Cookies 150g",      brand:"CrunchBite",  cat:"Biscuits",     subcat:"Cookies",       unit:"Pack",  sup:"SUP-017",cost:60, dc:12,rl:140,tgt:320, ss:55},
+  {sku:"SNK-001",name:"Param Classic Chips 100g",         brand:"Param",       cat:"Snacks",       subcat:"Chips",         unit:"Pack",  sup:"SUP-003",cost:20, dc:50,rl:600,tgt:1300,ss:250},
+  {sku:"SNK-002",name:"Param Masala Peanuts 200g",        brand:"Param",       cat:"Snacks",       subcat:"Namkeen",       unit:"Pack",  sup:"SUP-003",cost:35, dc:30,rl:350,tgt:800, ss:140},
+  {sku:"SNK-003",name:"QuickSnacks Bhujia 250g",          brand:"QuickSnacks", cat:"Snacks",       subcat:"Namkeen",       unit:"Pack",  sup:"SUP-015",cost:40, dc:25,rl:280,tgt:650, ss:110},
+  {sku:"SNK-004",name:"QuickSnacks Aloo Bhujia 150g",     brand:"QuickSnacks", cat:"Snacks",       subcat:"Namkeen",       unit:"Pack",  sup:"SUP-015",cost:28, dc:35,rl:400,tgt:900, ss:160},
+  {sku:"SNK-005",name:"Param Popcorn Butter 80g",         brand:"Param",       cat:"Snacks",       subcat:"Popcorn",       unit:"Pack",  sup:"SUP-003",cost:25, dc:20,rl:240,tgt:550, ss:90},
+  {sku:"SNK-006",name:"Param Corn Puffs 60g",             brand:"Param",       cat:"Snacks",       subcat:"Puffs",         unit:"Pack",  sup:"SUP-003",cost:15, dc:40,rl:480,tgt:1100,ss:200},
+  {sku:"SNK-007",name:"QuickSnacks Roasted Chana 200g",   brand:"QuickSnacks", cat:"Snacks",       subcat:"Namkeen",       unit:"Pack",  sup:"SUP-015",cost:30, dc:18,rl:200,tgt:480, ss:80},
+  {sku:"SNK-008",name:"Param Cheese Balls 75g",           brand:"Param",       cat:"Snacks",       subcat:"Puffs",         unit:"Pack",  sup:"SUP-003",cost:18, dc:32,rl:380,tgt:850, ss:150},
+  {sku:"SNK-009",name:"Param Masala Chips 50g",           brand:"Param",       cat:"Snacks",       subcat:"Chips",         unit:"Pack",  sup:"SUP-003",cost:10, dc:60,rl:700,tgt:1500,ss:280},
+  {sku:"SNK-010",name:"QuickSnacks Mathri 250g",          brand:"QuickSnacks", cat:"Snacks",       subcat:"Namkeen",       unit:"Pack",  sup:"SUP-015",cost:45, dc:15,rl:175,tgt:400, ss:70},
+  {sku:"PC-001", name:"NatureCare Neem Soap 100g",        brand:"NatureCare",  cat:"Personal Care",subcat:"Soap",          unit:"Bar",   sup:"SUP-005",cost:28, dc:22,rl:250,tgt:600, ss:100},
+  {sku:"PC-002", name:"NatureCare Shampoo 200ml",         brand:"NatureCare",  cat:"Personal Care",subcat:"Hair Care",     unit:"Bottle",sup:"SUP-005",cost:120,dc:10,rl:100,tgt:250, ss:40},
+  {sku:"PC-003", name:"SoftSkin Face Wash 100ml",         brand:"SoftSkin",    cat:"Personal Care",subcat:"Face Care",     unit:"Tube",  sup:"SUP-010",cost:95, dc:8, rl:90, tgt:220, ss:35},
+  {sku:"PC-004", name:"SoftSkin Moisturizer 150ml",       brand:"SoftSkin",    cat:"Personal Care",subcat:"Skin Care",     unit:"Tube",  sup:"SUP-010",cost:145,dc:6, rl:70, tgt:180, ss:28},
+  {sku:"PC-005", name:"Vedic Herbal Toothpaste 150g",     brand:"VedicHerbal", cat:"Personal Care",subcat:"Oral Care",     unit:"Tube",  sup:"SUP-016",cost:80, dc:15,rl:170,tgt:400, ss:70},
+  {sku:"PC-006", name:"NatureCare Body Lotion 200ml",     brand:"NatureCare",  cat:"Personal Care",subcat:"Skin Care",     unit:"Bottle",sup:"SUP-005",cost:130,dc:7, rl:80, tgt:200, ss:30},
+  {sku:"PC-007", name:"Vedic Herbal Shampoo 300ml",       brand:"VedicHerbal", cat:"Personal Care",subcat:"Hair Care",     unit:"Bottle",sup:"SUP-016",cost:160,dc:5, rl:60, tgt:150, ss:25},
+  {sku:"PC-008", name:"SoftSkin Sunscreen SPF30 50ml",    brand:"SoftSkin",    cat:"Personal Care",subcat:"Skin Care",     unit:"Tube",  sup:"SUP-010",cost:200,dc:4, rl:45, tgt:120, ss:18},
+  {sku:"PC-009", name:"NatureCare Neem Talc 150g",        brand:"NatureCare",  cat:"Personal Care",subcat:"Talcum",        unit:"Pack",  sup:"SUP-005",cost:60, dc:12,rl:140,tgt:320, ss:55},
+  {sku:"PC-010", name:"SoftSkin Anti-Dandruff Shampoo",   brand:"SoftSkin",    cat:"Personal Care",subcat:"Hair Care",     unit:"Bottle",sup:"SUP-010",cost:145,dc:6, rl:70, tgt:175, ss:28},
+  {sku:"HH-001", name:"CleanHome Detergent Powder 1kg",   brand:"CleanHome",   cat:"Household",    subcat:"Laundry",       unit:"Pack",  sup:"SUP-006",cost:95, dc:20,rl:230,tgt:550, ss:90},
+  {sku:"HH-002", name:"CleanHome Dishwash Bar 500g",      brand:"CleanHome",   cat:"Household",    subcat:"Utensil Care",  unit:"Bar",   sup:"SUP-006",cost:35, dc:18,rl:200,tgt:480, ss:80},
+  {sku:"HH-003", name:"ShineHome Floor Cleaner 1L",       brand:"ShineHome",   cat:"Household",    subcat:"Floor Care",    unit:"Bottle",sup:"SUP-014",cost:85, dc:12,rl:140,tgt:330, ss:55},
+  {sku:"HH-004", name:"BrightClean Toilet Cleaner 500ml", brand:"BrightClean", cat:"Household",    subcat:"Bathroom",      unit:"Bottle",sup:"SUP-020",cost:70, dc:10,rl:120,tgt:280, ss:45},
+  {sku:"HH-005", name:"ShineHome Glass Cleaner 500ml",    brand:"ShineHome",   cat:"Household",    subcat:"Glass Care",    unit:"Bottle",sup:"SUP-014",cost:65, dc:8, rl:90, tgt:220, ss:35},
+  {sku:"HH-006", name:"CleanHome Fabric Softener 800ml",  brand:"CleanHome",   cat:"Household",    subcat:"Laundry",       unit:"Bottle",sup:"SUP-006",cost:115,dc:7, rl:80, tgt:200, ss:30},
+  {sku:"HH-007", name:"BrightClean Surface Disinfectant", brand:"BrightClean", cat:"Household",    subcat:"Disinfectant",  unit:"Bottle",sup:"SUP-020",cost:90, dc:9, rl:100,tgt:250, ss:40},
+  {sku:"HH-008", name:"ShineHome Mosquito Repellent 45ml",brand:"ShineHome",   cat:"Household",    subcat:"Pest Control",  unit:"Bottle",sup:"SUP-014",cost:80, dc:6, rl:70, tgt:180, ss:28},
+  {sku:"HH-009", name:"CleanHome Bleach 500ml",           brand:"CleanHome",   cat:"Household",    subcat:"Disinfectant",  unit:"Bottle",sup:"SUP-006",cost:55, dc:8, rl:90, tgt:220, ss:35},
+  {sku:"HH-010", name:"BrightClean Air Freshener 250ml",  brand:"BrightClean", cat:"Household",    subcat:"Air Care",      unit:"Bottle",sup:"SUP-020",cost:75, dc:6, rl:70, tgt:175, ss:28},
+  {sku:"PF-001", name:"Agro Fresh Basmati Rice 5kg",      brand:"AgroFresh",   cat:"Packaged Foods",subcat:"Rice",         unit:"Bag",   sup:"SUP-001",cost:350,dc:15,rl:170,tgt:400, ss:70},
+  {sku:"PF-002", name:"Ruchi Whole Wheat Atta 10kg",      brand:"Ruchi",       cat:"Packaged Foods",subcat:"Flour",        unit:"Bag",   sup:"SUP-011",cost:420,dc:12,rl:140,tgt:320, ss:55},
+  {sku:"PF-003", name:"Annapurna Poha 500g",              brand:"Annapurna",   cat:"Packaged Foods",subcat:"Breakfast",    unit:"Pack",  sup:"SUP-019",cost:40, dc:20,rl:240,tgt:550, ss:95},
+  {sku:"PF-004", name:"Agro Fresh Toor Dal 1kg",          brand:"AgroFresh",   cat:"Packaged Foods",subcat:"Pulses",       unit:"Pack",  sup:"SUP-001",cost:130,dc:14,rl:160,tgt:380, ss:65},
+  {sku:"PF-005", name:"Ruchi Maida 1kg",                  brand:"Ruchi",       cat:"Packaged Foods",subcat:"Flour",        unit:"Pack",  sup:"SUP-011",cost:45, dc:18,rl:200,tgt:480, ss:80},
+  {sku:"PF-006", name:"Annapurna Vermicelli 200g",        brand:"Annapurna",   cat:"Packaged Foods",subcat:"Pasta",        unit:"Pack",  sup:"SUP-019",cost:28, dc:16,rl:185,tgt:430, ss:75},
+  {sku:"PF-007", name:"Agro Fresh Moong Dal 500g",        brand:"AgroFresh",   cat:"Packaged Foods",subcat:"Pulses",       unit:"Pack",  sup:"SUP-001",cost:90, dc:10,rl:120,tgt:280, ss:45},
+  {sku:"PF-008", name:"Ruchi Suji 500g",                  brand:"Ruchi",       cat:"Packaged Foods",subcat:"Flour",        unit:"Pack",  sup:"SUP-011",cost:38, dc:15,rl:170,tgt:400, ss:70},
+  {sku:"PF-009", name:"Agro Fresh Rajma 500g",            brand:"AgroFresh",   cat:"Packaged Foods",subcat:"Pulses",       unit:"Pack",  sup:"SUP-001",cost:95, dc:8, rl:90, tgt:220, ss:35},
+  {sku:"PF-010", name:"Annapurna Sewai 200g",             brand:"Annapurna",   cat:"Packaged Foods",subcat:"Pasta",        unit:"Pack",  sup:"SUP-019",cost:22, dc:12,rl:140,tgt:320, ss:55},
+  {sku:"DAI-001",name:"Himalaya Full Cream Milk 500ml",   brand:"Himalaya",    cat:"Dairy",        subcat:"Milk",          unit:"Pouch", sup:"SUP-004",cost:28, dc:60,rl:700,tgt:1500,ss:280},
+  {sku:"DAI-002",name:"PureFarm Curd 400g",               brand:"PureFarm",    cat:"Dairy",        subcat:"Curd",          unit:"Cup",   sup:"SUP-012",cost:40, dc:35,rl:400,tgt:900, ss:160},
+  {sku:"DAI-003",name:"Himalaya Butter 100g",             brand:"Himalaya",    cat:"Dairy",        subcat:"Butter",        unit:"Pack",  sup:"SUP-004",cost:55, dc:20,rl:230,tgt:540, ss:90},
+  {sku:"DAI-004",name:"PureFarm Paneer 200g",             brand:"PureFarm",    cat:"Dairy",        subcat:"Paneer",        unit:"Pack",  sup:"SUP-012",cost:85, dc:18,rl:210,tgt:490, ss:82},
+  {sku:"DAI-005",name:"Himalaya Ghee 500ml",              brand:"Himalaya",    cat:"Dairy",        subcat:"Ghee",          unit:"Jar",   sup:"SUP-004",cost:280,dc:10,rl:120,tgt:280, ss:45},
+  {sku:"DAI-006",name:"PureFarm Cheese Slice 200g",       brand:"PureFarm",    cat:"Dairy",        subcat:"Cheese",        unit:"Pack",  sup:"SUP-012",cost:120,dc:8, rl:90, tgt:220, ss:35},
+  {sku:"DAI-007",name:"Himalaya Lassi 250ml",             brand:"Himalaya",    cat:"Dairy",        subcat:"Lassi",         unit:"Bottle",sup:"SUP-004",cost:22, dc:25,rl:280,tgt:650, ss:110},
+  {sku:"DAI-008",name:"PureFarm Flavoured Milk 200ml",    brand:"PureFarm",    cat:"Dairy",        subcat:"Milk",          unit:"Pack",  sup:"SUP-012",cost:18, dc:40,rl:450,tgt:1000,ss:180},
+  {sku:"DAI-009",name:"Himalaya Fresh Cream 200ml",       brand:"Himalaya",    cat:"Dairy",        subcat:"Cream",         unit:"Pack",  sup:"SUP-004",cost:65, dc:10,rl:115,tgt:270, ss:45},
+  {sku:"DAI-010",name:"PureFarm Buttermilk 500ml",        brand:"PureFarm",    cat:"Dairy",        subcat:"Buttermilk",    unit:"Bottle",sup:"SUP-012",cost:30, dc:22,rl:250,tgt:580, ss:100},
+  {sku:"GRO-001",name:"Krishi Premium Turmeric 200g",     brand:"Krishi",      cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-008",cost:60, dc:12,rl:140,tgt:320, ss:55},
+  {sku:"GRO-002",name:"SpiceMart Red Chilli Powder 200g", brand:"SpiceMart",   cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-013",cost:65, dc:10,rl:120,tgt:280, ss:45},
+  {sku:"GRO-003",name:"Krishi Coriander Powder 100g",     brand:"Krishi",      cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-008",cost:30, dc:15,rl:170,tgt:400, ss:70},
+  {sku:"GRO-004",name:"SpiceMart Garam Masala 100g",      brand:"SpiceMart",   cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-013",cost:75, dc:8, rl:90, tgt:220, ss:35},
+  {sku:"GRO-005",name:"Krishi Mustard Seeds 200g",        brand:"Krishi",      cat:"Grocery",      subcat:"Seeds",         unit:"Pack",  sup:"SUP-008",cost:40, dc:10,rl:120,tgt:280, ss:45},
+  {sku:"GRO-006",name:"SpiceMart Cumin Powder 100g",      brand:"SpiceMart",   cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-013",cost:50, dc:9, rl:100,tgt:240, ss:40},
+  {sku:"GRO-007",name:"Krishi Iodised Salt 1kg",          brand:"Krishi",      cat:"Grocery",      subcat:"Salt",          unit:"Pack",  sup:"SUP-008",cost:20, dc:20,rl:240,tgt:550, ss:95},
+  {sku:"GRO-008",name:"SpiceMart Black Pepper 50g",       brand:"SpiceMart",   cat:"Grocery",      subcat:"Spices",        unit:"Pack",  sup:"SUP-013",cost:85, dc:6, rl:70, tgt:180, ss:28},
+  {sku:"GRO-009",name:"Krishi Sesame Seeds 100g",         brand:"Krishi",      cat:"Grocery",      subcat:"Seeds",         unit:"Pack",  sup:"SUP-008",cost:55, dc:7, rl:80, tgt:200, ss:30},
+  {sku:"GRO-010",name:"SpiceMart Fennel Seeds 100g",      brand:"SpiceMart",   cat:"Grocery",      subcat:"Seeds",         unit:"Pack",  sup:"SUP-013",cost:45, dc:6, rl:70, tgt:175, ss:28},
+];
+
+// ── DETERMINISTIC SEED ────────────────────────────────
+const ds=(n)=>{let x=Math.sin(n+1)*43758.5453;x-=Math.floor(x);return x;};
+const addDays=(d,n)=>{const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().split("T")[0];};
+
+// ── STOCK SCENARIOS (override for drama) ─────────────
+const STOCK_OVERRIDE={
+  "BEV-005":0,"SNK-009":0,"DAI-001":0,               // OOS
+  "BIS-002":42,"PF-004":38,                           // CRITICAL
+  "PC-001":180,"HH-001":160,"GRO-007":190,"BEV-001":150, // LOW
+  "BEV-010":800,"BIS-010":720,"HH-009":620,"PF-010":850, // OVERSTOCKED
+  "DAI-009":700,"SNK-007":1100,"GRO-009":520,"PC-007":380,
+  "BIS-006":1000,"HH-006":500,
+};
+
+// ── BUILD INVENTORY ───────────────────────────────────
+function buildInv(){
+  return SKUS.map((p,pi)=>{
+    let qty=STOCK_OVERRIDE.hasOwnProperty(p.sku)?STOCK_OVERRIDE[p.sku]:Math.round(p.tgt*(0.65+ds(pi*7)*0.7));
+    const invDays=p.dc>0?+(qty/p.dc).toFixed(1):999;
+    let status=qty===0?"OUT OF STOCK":invDays<=3?"CRITICAL":qty<p.rl?"LOW STOCK":qty>p.tgt*1.8?"OVERSTOCKED":"HEALTHY";
+    let urgency=qty===0||invDays<=3?"URGENT":invDays<=7?"REPLENISH NOW":qty<p.rl||invDays<=14?"REVIEW":"ADEQUATE";
+    const replQty=Math.max(0,p.tgt-qty);
+    const sup=SUPPLIERS.find(s=>s.id===p.sup);
+    return {...p,supName:sup?.name||"—",qty,invDays,status,replQty,urgency,value:qty*p.cost};
+  });
+}
+
+// ── BUILD POs ─────────────────────────────────────────
+function buildPOs(inv){
+  const pos=[];let cnt=100;
+  inv.forEach((p,pi)=>{
+    const sup=SUPPLIERS.find(s=>s.id===p.sup);
+    // 2-4 historical
+    const h=2+Math.floor(ds(pi*17)*3);
+    for(let i=0;i<h;i++){
+      const poDate=addDays(TODAY_STR,-(30+Math.floor(ds(pi*7+i*3)*150)));
+      const expDel=addDays(poDate,sup.lead);
+      const onT=ds(pi*11+i*7)<sup.rel;
+      const actDel=onT?addDays(expDel,Math.floor(ds(pi*13+i)*2)-1):addDays(expDel,2+Math.floor(ds(pi*5+i*11)*8));
+      const ord=Math.round(p.tgt*(0.3+ds(pi*3+i)*0.5));
+      const fr=onT?0.90+ds(pi+i)*0.10:0.70+ds(pi*2+i)*0.25;
+      const rec=Math.min(ord,Math.round(ord*fr));
+      pos.push({po:`PO-${cnt++}`,date:poDate,sup:p.sup,supName:sup.name,sku:p.sku,skuName:p.name,cat:p.cat,
+        ordered:ord,received:rec,pending:ord-rec,expDel,actDel,cost:p.cost,
+        status:rec>=ord?"RECEIVED":"PARTIALLY RECEIVED",
+        delay:actDel>expDel?Math.round((new Date(actDel)-new Date(expDel))/86400000):0,
+        fillRate:Math.round(rec/ord*100)});
+    }
+    // 1 open/recent
+    if(ds(pi*19)*10<7){
+      const poDate=addDays(TODAY_STR,-(2+Math.floor(ds(pi*23)*12)));
+      const expDel=addDays(poDate,sup.lead);
+      const isPast=expDel<TODAY_STR;
+      const isDel=isPast&&ds(pi*29)>sup.rel;
+      const ord=Math.round(p.tgt*(0.3+ds(pi*31)*0.5));
+      let status="PENDING",actDel=null,rec=0;
+      if(isPast&&!isDel){status="RECEIVED";actDel=expDel;rec=ord;}
+      else if(isDel){status="DELAYED";}
+      pos.push({po:`PO-${cnt++}`,date:poDate,sup:p.sup,supName:sup.name,sku:p.sku,skuName:p.name,cat:p.cat,
+        ordered:ord,received:rec,pending:ord-rec,expDel,actDel,cost:p.cost,status,
+        delay:isDel?Math.round((new Date(TODAY_STR)-new Date(expDel))/86400000):0,
+        fillRate:rec>0?Math.round(rec/ord*100):0});
+    }
+  });
+  return pos.sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+// ── BUILD SUPPLIER PERF ───────────────────────────────
+function buildSupPerf(pos){
+  return SUPPLIERS.map(s=>{
+    const sp=pos.filter(p=>p.sup===s.id);
+    const total=sp.length;
+    if(!total) return null;
+    const received=sp.filter(p=>p.status==="RECEIVED").length;
+    const delayed=sp.filter(p=>p.status==="DELAYED").length;
+    const pending=sp.filter(p=>p.status==="PENDING").length;
+    const partial=sp.filter(p=>p.status==="PARTIALLY RECEIVED").length;
+    const comp=sp.filter(p=>p.actDel);
+    const avgLead=comp.length?+(comp.reduce((s,p)=>(s+(new Date(p.actDel)-new Date(p.date))/86400000),0)/comp.length).toFixed(1):s.lead;
+    const fillRate=+(sp.reduce((s,p)=>s+(p.fillRate||0),0)/total).toFixed(1);
+    const onTimePct=+(received/total*100).toFixed(1);
+    const score=+((onTimePct*0.6)+(fillRate*0.4)).toFixed(1);
+    const rating=score>=90?"EXCELLENT":score>=80?"GOOD":score>=70?"AVERAGE":"POOR";
+    return {...s,total,received,delayed,pending,partial,onTimePct,fillRate,avgLead,score,rating};
+  }).filter(Boolean).sort((a,b)=>b.total-a.total);
+}
+
+// ── ABC ───────────────────────────────────────────────
+function buildABC(inv){
+  const items=[...inv].map(p=>({sku:p.sku,name:p.name,brand:p.brand,cat:p.cat,cost:p.cost,
+    consumed:Math.round(p.dc*180),consVal:Math.round(p.dc*180*p.cost)}))
+    .sort((a,b)=>b.consVal-a.consVal);
+  const total=items.reduce((s,r)=>s+r.consVal,0);
+  let cum=0;
+  return items.map(r=>{cum+=r.consVal;const cp=+((cum/total)*100).toFixed(1);return{...r,cumPct:cp,abc:cp<=70?"A":cp<=90?"B":"C"};});
+}
+
+// ── SLOW MOVING ───────────────────────────────────────
+function buildSlow(inv){
+  return inv.map((p,i)=>{
+    if(p.qty===0) return null;
+    const daysSince=p.dc<=8?20+Math.floor(ds(i*7)*55):Math.floor(ds(i*11)*28);
+    if(daysSince<30) return null;
+    const lastMoved=addDays(TODAY_STR,-daysSince);
+    const smStatus=daysSince>=60?"DEAD STOCK":daysSince>=45?"VERY SLOW":"SLOW MOVING";
+    return {...p,daysSince,lastMoved,smStatus};
+  }).filter(Boolean).sort((a,b)=>b.daysSince-a.daysSince);
+}
+
+// ── MONTHLY MOVEMENT ──────────────────────────────────
+function buildMonthly(){
+  const months=[];const today=new Date();
+  const totalDC=SKUS.reduce((s,p)=>s+p.dc,0);
+  for(let m=5;m>=0;m--){
+    const d=new Date(today.getFullYear(),today.getMonth()-m,1);
+    const label=d.toLocaleString("en-IN",{month:"short",year:"2-digit"});
+    const days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+    const n=0.85+ds(m*7)*0.30;
+    months.push({label,sales:Math.round(totalDC*days*n),purchases:Math.round(totalDC*days*n*0.95),returns:Math.round(totalDC*days*0.02)});
+  }
+  return months;
+}
+
+// ── TRANSACTIONS ──────────────────────────────────────
+function buildTxns(){
+  const txns=[];let cnt=1;
+  const locs=LOCATIONS.map(l=>l.id);
+  SKUS.forEach((p,pi)=>{
+    txns.push({id:`TXN-${String(cnt++).padStart(5,"0")}`,date:addDays(TODAY_STR,-180),sku:p.sku,skuName:p.name,loc:locs[pi%locs.length],locName:LOCATIONS[pi%locs.length].name,type:"PURCHASE",qty:Math.round(p.tgt*0.8),ref:`OPEN-${p.sku}`,sup:p.sup,supName:SUPPLIERS.find(s=>s.id===p.sup)?.name||"",rem:"Opening balance"});
+    for(let w=0;w<26;w++){
+      const wDate=addDays(TODAY_STR,-(180-w*7));
+      const loc=locs[(pi+w)%locs.length];
+      const locName=LOCATIONS[(pi+w)%locs.length].name;
+      txns.push({id:`TXN-${String(cnt++).padStart(5,"0")}`,date:wDate,sku:p.sku,skuName:p.name,loc,locName,type:"SALE",qty:-Math.round(p.dc*7*(0.6+ds(pi*3+w)*0.8)),ref:`SALE-W${w}`,sup:null,supName:"",rem:"Weekly sales"});
+      if(w%2===0) txns.push({id:`TXN-${String(cnt++).padStart(5,"0")}`,date:wDate,sku:p.sku,skuName:p.name,loc,locName,type:"RECEIPT",qty:Math.round(p.tgt*(0.3+ds(pi*11+w)*0.4)),ref:`PO-${100+pi}`,sup:p.sup,supName:SUPPLIERS.find(s=>s.id===p.sup)?.name||"",rem:"PO receipt"});
+      if(ds(pi*17+w)<0.05) txns.push({id:`TXN-${String(cnt++).padStart(5,"0")}`,date:wDate,sku:p.sku,skuName:p.name,loc,locName,type:"RETURN",qty:Math.ceil(ds(pi+w)*5)+1,ref:`RET-${cnt}`,sup:null,supName:"",rem:"Customer return"});
+      if(ds(pi*29+w)<0.03){const adj=Math.round((ds(pi+w)-0.5)*20);if(adj!==0)txns.push({id:`TXN-${String(cnt++).padStart(5,"0")}`,date:wDate,sku:p.sku,skuName:p.name,loc,locName,type:"ADJUSTMENT",qty:adj,ref:`ADJ-${cnt}`,sup:null,supName:"",rem:"Cycle count adj."});}
+    }
+  });
+  return txns.sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+// ── EXCEPTIONS ────────────────────────────────────────
+function buildExceptions(inv,pos){
+  const ex=[];
+  inv.forEach(p=>{
+    if(p.status==="OUT OF STOCK") ex.push({type:"OUT OF STOCK",sev:"CRITICAL",sku:p.sku,name:p.name,cat:p.cat,desc:`${p.name} has zero stock across all warehouses.`,action:"Raise emergency PO immediately. Contact supplier for expedited delivery."});
+    else if(p.status==="CRITICAL") ex.push({type:"STOCKOUT RISK",sev:"CRITICAL",sku:p.sku,name:p.name,cat:p.cat,desc:`${p.name} has only ${p.invDays} days of inventory left.`,action:"Initiate emergency replenishment. Escalate to procurement manager."});
+    else if(p.status==="LOW STOCK") ex.push({type:"LOW STOCK",sev:"HIGH",sku:p.sku,name:p.name,cat:p.cat,desc:`${p.name}: ${p.qty.toLocaleString("en-IN")} units — below reorder level of ${p.rl}.`,action:"Raise purchase order within 24 hours."});
+    else if(p.status==="OVERSTOCKED"){const ex_u=p.qty-p.tgt;ex.push({type:"OVERSTOCK",sev:"MEDIUM",sku:p.sku,name:p.name,cat:p.cat,desc:`${p.name} is overstocked by ${ex_u.toLocaleString("en-IN")} units (₹${(ex_u*p.cost).toLocaleString("en-IN")} excess value).`,action:"Review purchase frequency. Consider promotional pricing or return to supplier."});}
+  });
+  pos.filter(p=>p.status==="DELAYED").slice(0,10).forEach(p=>ex.push({type:"SUPPLIER DELAY",sev:"HIGH",sku:p.sku,name:p.po,cat:"",desc:`${p.po} from ${p.supName} is delayed by ${p.delay} days (${p.ordered.toLocaleString("en-IN")} units pending).`,action:"Contact supplier for updated ETA. Review alternate sourcing options."}));
+  const sevO={CRITICAL:0,HIGH:1,MEDIUM:2};
+  return ex.sort((a,b)=>(sevO[a.sev]||3)-(sevO[b.sev]||3));
+}
+
+// ── INSIGHTS ──────────────────────────────────────────
+function buildInsights(inv,pos,supPerf,abc){
+  const ins=[];
+  const belowRL=inv.filter(p=>p.qty>0&&p.qty<p.rl).length;
+  if(belowRL>0) ins.push({lv:"HIGH",text:`${belowRL} SKUs are currently below reorder level and require immediate procurement action.`});
+  const delSups=supPerf.filter(s=>s.delayed>0).sort((a,b)=>b.delayed-a.delayed).slice(0,3);
+  const totDel=supPerf.reduce((s,r)=>s+(r.delayed||0),0);
+  if(delSups.length&&totDel>0){const top3Del=delSups.reduce((s,r)=>s+r.delayed,0);ins.push({lv:"MEDIUM",text:`${delSups.map(s=>s.name.split(" ").slice(0,2).join(" ")).join(", ")} account for ${Math.round(top3Del/totDel*100)}% of all delayed purchase orders.`});}
+  const aI=abc.filter(x=>x.abc==="A");const aV=aI.reduce((s,r)=>s+r.consVal,0);const tV=abc.reduce((s,r)=>s+r.consVal,0);
+  ins.push({lv:"INFO",text:`${aI.length} Class-A SKUs account for ${Math.round(aV/tV*100)}% of total consumption value — these require the tightest inventory controls.`});
+  const low7=inv.filter(p=>p.invDays>0&&p.invDays<=7).length;
+  if(low7>0) ins.push({lv:"HIGH",text:`${low7} SKUs have fewer than 7 days of inventory remaining and face imminent stockout risk.`});
+  const totOver=inv.filter(p=>p.status==="OVERSTOCKED").reduce((s,p)=>s+(p.qty-p.tgt)*p.cost,0);
+  if(totOver>0) ins.push({lv:"MEDIUM",text:`₹${Math.round(totOver).toLocaleString("en-IN")} of capital is locked in overstocked products — review purchase frequency.`});
+  const cats={};inv.forEach(p=>{cats[p.cat]=(cats[p.cat]||0)+p.value;});
+  const topCat=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  const totInvVal=inv.reduce((s,p)=>s+p.value,0);
+  if(topCat) ins.push({lv:"INFO",text:`'${topCat[0]}' is the highest-value category, holding ${Math.round(topCat[1]/totInvVal*100)}% of total inventory value.`});
+  const poor=supPerf.filter(s=>s.rating==="POOR");
+  if(poor.length) ins.push({lv:"HIGH",text:`${poor.map(s=>s.name.split(" ").slice(0,2).join(" ")).join(", ")} ${poor.length===1?"has":"have"} a poor performance score — review contracts and consider alternate suppliers.`});
+  return ins;
+}
+
+// ── LOCATION STOCK ────────────────────────────────────
+function buildLocStock(inv){
+  const dist={"WH-DEL":0.35,"WH-MUM":0.30,"WH-BLR":0.15,"WH-KOL":0.12,"WH-HYD":0.08};
+  return LOCATIONS.map(l=>({
+    ...l,
+    units:Math.round(inv.reduce((s,p)=>s+p.qty,0)*dist[l.id]),
+    value:Math.round(inv.reduce((s,p)=>s+p.value,0)*dist[l.id]),
+    skus:inv.length
+  }));
+}
+
+// ── USERS ─────────────────────────────────────────────
+const USERS=[
+  {id:"u1",username:"admin",     password:"Admin@2026",role:"admin", name:"Admin — Ops Head",    av:"AD"},
+  {id:"u2",username:"inventory", password:"Inv@2026",  role:"admin", name:"Inventory Manager",   av:"IM"},
+  {id:"u3",username:"analyst",   password:"Data@2026", role:"viewer",name:"Data Analyst",         av:"DA"},
+];
+
+const N=n=>n?.toLocaleString("en-IN")||"0";
+const INR=n=>"₹"+(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+const PCT=n=>((n||0).toFixed(1))+"%";
+const FMT=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"—";
+const DAYS=n=>n>=999?"∞":(n||0).toFixed(1);
+</script>
+
 <script type="text/babel">
-const {useState,useMemo,useRef,useEffect,useCallback}=React;
+const {useState,useMemo,useEffect,useRef,useCallback}=React;
 
-/* ═══════════════════════════════ INITIAL DATA ══════════════════════════════ */
-
-// ── USERS (CHANGE/ADD/REMOVE HERE) ──────────────────────────────────────────
-const INIT_USERS = [
-  {id:"u1", username:"admin",         password:"Admin@2026",  role:"admin",  name:"Admin",                   av:"AD", vKey:null,                              email:"admin@company.com",   phone:""},
-  {id:"u2", username:"ops_manager",   password:"Ops@2026",    role:"admin",  name:"Operations Manager",       av:"OM", vKey:null,                              email:"ops@company.com",     phone:""},
-  {id:"u3", username:"evergreen",     password:"Ever@123",    role:"vendor", name:"Evergreen Handles",        av:"EV", vKey:"EVERGREEN HANDLES UMBERCAON",     email:"evergreen@mail.com",  phone:"9876543210"},
-  {id:"u4", username:"rohit_plastic", password:"Rohit@123",   role:"vendor", name:"Rohit Plastic Mumbai",     av:"RP", vKey:"ROHIT PLASTIC MUMBAI",            email:"rohit@plastic.com",   phone:"9823456789"},
-  {id:"u5", username:"manoj_golcha",  password:"Manoj@123",   role:"vendor", name:"Manoj Golcha",             av:"MG", vKey:"MANOJ GOLCHA",                    email:"manoj@golcha.com",    phone:"9812345678"},
-  {id:"u6", username:"mj_supply",     password:"MJ@12345",    role:"vendor", name:"MJ Supplier",              av:"MJ", vKey:"MJ",                              email:"mj@supply.com",       phone:"9801234567"},
-  {id:"u7", username:"miss_wang",     password:"Wang@123",    role:"vendor", name:"Miss Wang RMB",            av:"MW", vKey:"MISS WANG-RMB",                   email:"wang@rmb.cn",         phone:"861234567890"},
-  {id:"u8", username:"carton_skp",    password:"Carton@123",  role:"vendor", name:"Carton SKP",               av:"CS", vKey:"CARTON-SKP",                      email:"carton@skp.com",      phone:"9845678901"},
-  {id:"u9", username:"yusimeng",      password:"Yusi@123",    role:"vendor", name:"Yusimeng RMB",             av:"YU", vKey:"YUSIMENG-RMB",                    email:"yu@rmb.cn",           phone:"861987654321"},
-];
-
-// ── ORDERS ───────────────────────────────────────────────────────────────────
-const INIT_ORDERS = [
-  {poId:"PO-024-2026",lineId:1,item:"HND-3F-M FORD BLNK024",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:500,qR:100,exp:"2026-05-01",lc:"2026-05-10",ad:"",         pri:"HIGH",  rev:2},
-  {poId:"PO-024-2026",lineId:2,item:"HND-3F-M FORD BLNK068",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-01",lc:"2026-05-15",ad:"",         pri:"HIGH",  rev:3},
-  {poId:"PO-024-2026",lineId:3,item:"HND-3F-M FORD BLNK069",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:200,qR:0,  exp:"2026-05-01",lc:"2026-05-20",ad:"",         pri:"MEDIUM",rev:1},
-  {poId:"PO-024-2026",lineId:4,item:"HND-3F-M FORD SWG261",     cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:150,qR:150,exp:"2026-04-25",lc:"2026-04-25",ad:"2026-04-24",pri:"LOW",   rev:0},
-  {poId:"PO-024-2026",lineId:5,item:"HND-3F-A BLACK SILVER",    cat:"HANDLES",  vendor:"EVERGREEN HANDLES UMBERCAON",od:"2026-04-10",qO:400,qR:0,  exp:"2026-05-05",lc:"2026-05-25",ad:"",         pri:"HIGH",  rev:4},
-  {poId:"PO-025-2026",lineId:1,item:"HND-2F-GT TRAVEL BS",      cat:"HANDLES",  vendor:"MANOJ GOLCHA",               od:"2026-04-10",qO:600,qR:200,exp:"2026-04-28",lc:"2026-05-05",ad:"",         pri:"HIGH",  rev:2},
-  {poId:"PO-026-2026",lineId:1,item:"HND-2F AUTO LADIES LLY LIGHT PINK",cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:800,qR:400,exp:"2026-04-30",lc:"2026-05-08",ad:"",pri:"MEDIUM",rev:2},
-  {poId:"PO-026-2026",lineId:2,item:"HND-2F AUTO LADIES LLY DARK PINK", cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:800,qR:400,exp:"2026-04-30",lc:"2026-05-08",ad:"",pri:"MEDIUM",rev:2},
-  {poId:"PO-026-2026",lineId:3,item:"HND-2F AUTO LADIES LLY RED",       cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:500,qR:0,  exp:"2026-04-30",lc:"2026-05-12",ad:"",pri:"HIGH",  rev:3},
-  {poId:"PO-026-2026",lineId:4,item:"HND-2F AUTO LADIES LLY YELLOW",    cat:"HANDLES",vendor:"ROHIT PLASTIC MUMBAI",od:"2026-04-10",qO:500,qR:0,  exp:"2026-04-30",lc:"2026-05-12",ad:"",pri:"HIGH",  rev:3},
-  {poId:"PO-027-2026",lineId:1, item:"HND-3F-A BLACK SILVER",  cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-18",ad:"",        pri:"MEDIUM",rev:1},
-  {poId:"PO-027-2026",lineId:2, item:"HND-3F-A TEAL",          cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-18",ad:"",        pri:"MEDIUM",rev:1},
-  {poId:"PO-027-2026",lineId:3, item:"HND-3F-A L PINK",        cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,  exp:"2026-05-10",lc:"2026-05-20",ad:"",        pri:"LOW",   rev:0},
-  {poId:"PO-027-2026",lineId:4, item:"HND-3F-A BLNK262",       cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:200,qR:200,exp:"2026-05-01",lc:"2026-05-01",ad:"2026-04-30",pri:"LOW",   rev:0},
-  {poId:"PO-027-2026",lineId:5, item:"HND-3F-A BLNK267",       cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:200,qR:0,  exp:"2026-05-10",lc:"2026-05-22",ad:"",        pri:"MEDIUM",rev:2},
-  {poId:"PO-027-2026",lineId:6, item:"HND-3F-M LINE TEAL",     cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,  exp:"2026-05-10",lc:"2026-05-20",ad:"",        pri:"MEDIUM",rev:1},
-  {poId:"PO-027-2026",lineId:7, item:"HND-2F LADIES DAFFODIL BLUE",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:600,qR:300,exp:"2026-05-05",lc:"2026-05-10",ad:"",pri:"HIGH",rev:2},
-  {poId:"PO-027-2026",lineId:8, item:"HND-2F LADIES DAFFODIL BLNK262",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,exp:"2026-05-08",lc:"2026-05-18",ad:"",pri:"HIGH",rev:3},
-  {poId:"PO-027-2026",lineId:9, item:"HND-2F LADIES DAFFODIL BLNK264",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:400,qR:0,exp:"2026-05-08",lc:"2026-05-18",ad:"",pri:"HIGH",rev:3},
-  {poId:"PO-027-2026",lineId:10,item:"HND-2F AUTO LADIES FIONA L BROWN",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:500,qR:0,exp:"2026-05-12",lc:"2026-05-20",ad:"",pri:"MEDIUM",rev:1},
-  {poId:"PO-027-2026",lineId:11,item:"HND-2F AUTO BARREL SHINE BLACK",cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:0,exp:"2026-05-12",lc:"2026-05-22",ad:"",pri:"LOW",rev:0},
-  {poId:"PO-027-2026",lineId:12,item:"HND-3F-M LINE BLACK",    cat:"HANDLES",vendor:"MJ",od:"2026-04-10",qO:300,qR:300,exp:"2026-05-01",lc:"2026-05-01",ad:"2026-04-28",pri:"LOW",   rev:0},
-  {poId:"PO-2417-26", lineId:1, item:"RUNNER SET FOLDING AUTO HALF DEEP 0226",cat:"RUNNER SET",vendor:"MISS WANG-RMB",od:"2026-05-05",qO:200,qR:0,exp:"2026-05-30",lc:"2026-06-05",ad:"",pri:"HIGH",rev:2},
-  {poId:"PO-2417-26", lineId:2, item:"RUNNER SET FOLDING AUTO 9102-KK",       cat:"RUNNER SET",vendor:"MISS WANG-RMB",od:"2026-05-05",qO:150,qR:0,exp:"2026-05-30",lc:"2026-06-05",ad:"",pri:"HIGH",rev:2},
-];
-
-const INIT_FOLLOWUPS = [
-  {date:"2026-04-21",vendor:"CARTON-SKP",                 poId:"",           li:"",mode:"WHATSAPP",disc:"MC 14 DZ JIMMY BY TODAY",           nc:"2026-04-20",pc:"2026-05-01",nf:"",          sn:"COMMITMENT MISSED"},
-  {date:"2026-05-10",vendor:"MJ",                         poId:"PO-027-2026",li:"7",mode:"CALL",   disc:"Daffodil blue dispatch status",      nc:"2026-05-15",pc:"2026-05-10",nf:"2026-05-13",sn:"IN PRODUCTION"},
-  {date:"2026-05-12",vendor:"ROHIT PLASTIC MUMBAI",       poId:"PO-026-2026",li:"3",mode:"WHATSAPP",disc:"LLY Red commitment",               nc:"2026-05-18",pc:"2026-05-12",nf:"2026-05-16",sn:"WAITING MATERIAL"},
-  {date:"2026-05-14",vendor:"EVERGREEN HANDLES UMBERCAON",poId:"PO-024-2026",li:"2",mode:"CALL",   disc:"FORD BLNK068 status update",        nc:"2026-05-20",pc:"2026-05-15",nf:"2026-05-18",sn:"IN PRODUCTION"},
-  {date:"2026-05-15",vendor:"MISS WANG-RMB",              poId:"PO-2417-26", li:"1",mode:"MAIL",   disc:"Runner set dispatch timeline",       nc:"2026-06-05",pc:"2026-05-30",nf:"2026-05-22",sn:"DISPATCH IN 3 DAYS"},
-  {date:"2026-05-16",vendor:"MANOJ GOLCHA",               poId:"PO-025-2026",li:"1",mode:"CALL",   disc:"GT Travel BS pending 400 pcs",      nc:"2026-05-22",pc:"2026-05-05",nf:"2026-05-20",sn:"UNCERTAIN"},
-];
-
-const INIT_NOTES = [
-  {id:"n1",poId:"PO-027-2026",vendor:"MJ",      authorName:"MJ Supplier",  role:"vendor",text:"Daffodil Blue dispatched today. Tracking number: DHL-4892756. Expected delivery 14th May.",    time:"2026-05-10T10:15:00",readByAdmin:false},
-  {id:"n2",poId:"PO-026-2026",vendor:"ROHIT PLASTIC MUMBAI",authorName:"Rohit Plastic Mumbai",role:"vendor",text:"LLY Red material arrived at factory. Production starting today. Dispatch by 18th May confirmed.",time:"2026-05-12T14:30:00",readByAdmin:false},
-  {id:"n3",poId:"PO-2417-26", vendor:"MISS WANG-RMB",        authorName:"Miss Wang RMB",        role:"vendor",text:"Runner set production 80% complete. Will dispatch by June 5th as committed.",                  time:"2026-05-15T08:00:00",readByAdmin:false},
-];
-
-/* ═══════════════════════════════ HELPERS ═══════════════════════════════════ */
-const TODAY = new Date().toISOString().split("T")[0];
-const dd=(a,b)=>Math.round((new Date(a)-new Date(b))/86400000);
-const fmt=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"—";
-const fmtDT=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+" "+new Date(d).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true}):"";
-const uid=()=>Math.random().toString(36).slice(2,10);
-const initials=name=>name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase().slice(0,2);
-
-function calcO(o){
-  const pend=o.qO-o.qR;
-  let st="PENDING";
-  if(o.qR>=o.qO) st="COMPLETED";
-  else if(o.lc&&o.lc<TODAY) st="DELAYED";
-  const del=o.lc&&TODAY>o.lc?dd(TODAY,o.lc):0;
-  const lead=o.od?(o.ad?dd(o.ad,o.od):dd(TODAY,o.od)):0;
-  const onT=o.ad?(o.ad<=o.lc?"YES":"NO"):"";
-  const risk=del>5?"HIGH":del>2?"MEDIUM":"LOW";
-  return {...o,pend,st,del,lead,onT,risk};
-}
-function calcF(f){
-  const chg=f.nc&&f.pc?dd(f.nc,f.pc):0;
-  let fs="UPCOMING";
-  if(f.nf){if(f.nf<TODAY)fs="OVERDUE";else if(f.nf===TODAY)fs="TODAY";}
-  return {...f,chg,fs,esc:fs==="OVERDUE"?"YES":""};
-}
-function vri(vn,orders){
-  const v=orders.filter(o=>o.vendor===vn);
-  if(!v.length)return 0;
-  const t=v.length;
-  const onT=v.filter(o=>o.onT==="YES").length;
-  const qO=v.reduce((s,o)=>s+o.qO,0),qR=v.reduce((s,o)=>s+o.qR,0);
-  const aD=v.reduce((s,o)=>s+(o.del||0),0)/t;
-  const aR=v.reduce((s,o)=>s+(o.rev||0),0)/t;
-  return Math.round(((onT/t*10)+Math.min(qO?qR/qO*10:5,10)+Math.max(10-aD,0)+Math.max(10-aR*2,0))/4*10)/10;
-}
-const rc=s=>s>=8?"EXCELLENT":s>=6?"GOOD":s>=4?"RISKY":"POOR";
-
-/* ═══════════════════════════════ SMALL COMPONENTS ══════════════════════════ */
-function Bdg({v}){
-  const k=(v||"").toLowerCase().replace(/\s+/g,"");
-  const m={completed:"completed",pending:"pending",delayed:"delayed",high:"high",medium:"medium",low:"low",overdue:"overdue",today:"today",upcoming:"upcoming",yes:"yes",no:"no",excellent:"excellent",good:"good",risky:"risky",poor:"poor"};
-  return <span className={`b b-${m[k]||"pending"}`}>{v||"—"}</span>;
-}
-function SBar({score}){
-  const p=Math.min(score/10*100,100);
-  const c=score>=8?"#22c55e":score>=6?"#10e8b8":score>=4?"#f5c518":"#f04438";
-  return <div className="sbar"><div className="strack"><div className="sfill" style={{width:p+"%",background:c}}/></div><span className="snum" style={{color:c}}>{score}</span></div>;
+// ══ STATUS BADGE ══
+function Bdg({v,cls}){
+  const m={
+    "OUT OF STOCK":"b-oos","CRITICAL":"b-critical","LOW STOCK":"b-low","HEALTHY":"b-healthy","OVERSTOCKED":"b-over",
+    "URGENT":"b-urgent","REPLENISH NOW":"b-now","REVIEW":"b-review","ADEQUATE":"b-adequate",
+    "RECEIVED":"b-received","PENDING":"b-pending","PARTIALLY RECEIVED":"b-partial","DELAYED":"b-delayed","CANCELLED":"b-low",
+    "EXCELLENT":"b-excellent","GOOD":"b-good","AVERAGE":"b-average","POOR":"b-poor","N/A":"b-low",
+    "A":"b-abc-a","B":"b-abc-b","C":"b-abc-c",
+    "DEAD STOCK":"b-dead","VERY SLOW":"b-vslow","SLOW MOVING":"b-slow",
+    "HIGH":"b-oos","MEDIUM":"b-review","NORMAL":"b-adequate",
+  };
+  return <span className={`b ${cls||m[v]||"b-low"}`}>{v}</span>;
 }
 
-/* ═══════════════════════════════ LOGIN ══════════════════════════════════════ */
-function Login({users,onLogin}){
-  const [u,su]=useState(""); const [p,sp]=useState(""); const [err,se]=useState("");
+// ══ SCORE BAR ══
+function SBar({score,max=100}){
+  const p=Math.min(score/max*100,100);
+  const c=p>=90?"#22c55e":p>=75?"#10e8b8":p>=60?"#f5c518":"#f04438";
+  return<div className="score-bar"><div className="score-track"><div className="score-fill" style={{width:p+"%",background:c}}/></div><span className="score-num" style={{color:c}}>{score.toFixed?score.toFixed(1):score}</span></div>;
+}
+
+// ══ CHART WRAPPER ══
+function CChart({id,cfg,height=210}){
+  const ref=useRef();const inst=useRef();
+  useEffect(()=>{
+    if(!ref.current) return;
+    if(inst.current) inst.current.destroy();
+    inst.current=new Chart(ref.current,cfg);
+    return()=>{if(inst.current){inst.current.destroy();inst.current=null;}};
+  },[JSON.stringify(cfg)]);
+  return<div className="chart-wrap" style={{height}}><canvas ref={ref}/></div>;
+}
+
+const CHART_COLORS=["#10e8b8","#0090f0","#f5c518","#f04438","#a855f7","#f97316","#22c55e","#ec4899"];
+const CHART_OPTS={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8b93a8",boxWidth:11,font:{size:11}}}}};
+
+// ══ EXPORT CSV ══
+function exportCSV(data,name){
+  if(!data.length) return;
+  const hdrs=Object.keys(data[0]);
+  const rows=data.map(r=>hdrs.map(h=>{const v=r[h];return typeof v==="string"&&v.includes(",")?"\""+v+"\"":v??"";}).join(","));
+  const csv=[hdrs.join(","),...rows].join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download=`FIIRS_${name}_${TODAY_STR}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// ══════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════
+function Login({onLogin}){
+  const [u,su]=useState("");const [p,sp]=useState("");const [err,se]=useState("");
   const go=()=>{
-    const r=users.find(x=>x.username===u.trim()&&x.password===p);
+    const r=USERS.find(x=>x.username===u.trim()&&x.password===p);
     if(r){se("");onLogin(r);}else se("Incorrect username or password.");
   };
   return(
     <div className="lp">
       <div className="lc">
-        <div className="licon">⬡</div>
-        <div className="ltitle">Vendor Ops Intelligence</div>
-        <div className="lsub">Sign in to your account</div>
+        <div className="licon">📦</div>
+        <div className="ltitle">FIIRS</div>
+        <div className="lsub">FMCG Inventory Intelligence & Replenishment System<br/>Vriddhi Consumer Goods Pvt. Ltd.</div>
         <div className="lfield"><label className="llabel">Username</label><input className="linput" placeholder="Enter username" value={u} onChange={e=>su(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} autoFocus/></div>
         <div className="lfield"><label className="llabel">Password</label><input className="linput" type="password" placeholder="Enter password" value={p} onChange={e=>sp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/></div>
         <button className="lbtn" onClick={go}>Sign In →</button>
         {err&&<div className="lerr">{err}</div>}
+        <div className="lhint">
+          <strong>Demo credentials:</strong><br/>
+          Admin: <code>admin</code> / <code>Admin@2026</code><br/>
+          Inventory: <code>inventory</code> / <code>Inv@2026</code><br/>
+          Analyst: <code>analyst</code> / <code>Data@2026</code>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════════════ MAIN APP ═══════════════════════════════════ */
+// ══════════════════════════════════════════════════════
+//  MAIN APP
+// ══════════════════════════════════════════════════════
 function App(){
   const [user,setUser]=useState(null);
   const [tab,setTab]=useState("dashboard");
-  const [users,setUsers]=useState(INIT_USERS);
-  const [orders,setOrders]=useState(INIT_ORDERS.map(calcO));
-  const [fups,setFups]=useState(INIT_FOLLOWUPS.map(calcF));
-  const [notes,setNotes]=useState(INIT_NOTES);
-  const [showOM,setShowOM]=useState(false);
-  const [showFM,setShowFM]=useState(false);
-  const [editOI,setEditOI]=useState(null);
-  const [editFI,setEditFI]=useState(null);
-  const [oF,setOF]=useState({s:"",st:"",pr:"",v:""});
-  const [fF,setFF]=useState({s:"",st:""});
 
-  const isA=user?.role==="admin";
-  const vK=user?.vKey;
-  const nowS=new Date().toLocaleDateString("en-IN",{weekday:"short",day:"2-digit",month:"short",year:"numeric"});
-
-  const co=useMemo(()=>orders,[orders]);
-  const vo=useMemo(()=>isA?co:co.filter(o=>o.vendor===vK),[co,isA,vK]);
-  const vf=useMemo(()=>isA?fups:fups.filter(f=>f.vendor===vK),[fups,isA,vK]);
-  const vends=useMemo(()=>users.filter(u=>u.role==="vendor").map(u=>({
-    vendor:u.vKey,name:u.name,cat:u.cat||"—",cp:u.name,ph:u.phone,em:u.email,
-    score:vri(u.vKey,co),risk:rc(vri(u.vKey,co))
-  })),[users,co]);
+  // Build all data once
+  const inv     =useMemo(()=>buildInv(),[]);
+  const pos     =useMemo(()=>buildPOs(inv),[inv]);
+  const supPerf =useMemo(()=>buildSupPerf(pos),[pos]);
+  const abc     =useMemo(()=>buildABC(inv),[inv]);
+  const slow    =useMemo(()=>buildSlow(inv),[inv]);
+  const monthly =useMemo(()=>buildMonthly(),[]);
+  const txns    =useMemo(()=>buildTxns(),[]);
+  const exceptions=useMemo(()=>buildExceptions(inv,pos),[inv,pos]);
+  const insights=useMemo(()=>buildInsights(inv,pos,supPerf,abc),[inv,pos,supPerf,abc]);
+  const locStock=useMemo(()=>buildLocStock(inv),[inv]);
 
   const kpis=useMemo(()=>({
-    op:vo.filter(o=>o.st!=="COMPLETED").length,
-    dl:vo.filter(o=>o.st==="DELAYED").length,
-    pq:vo.filter(o=>o.st!=="COMPLETED").reduce((s,o)=>s+(o.pend||0),0),
-    ft:vf.filter(f=>f.fs==="TODAY"||f.fs==="OVERDUE").length,
-    hr:vends.filter(v=>v.risk==="POOR"||v.risk==="RISKY").length,
-    av:vends.length?Math.round(vends.reduce((s,v)=>s+v.score,0)/vends.length*10)/10:0,
-  }),[vo,vf,vends]);
+    skus:inv.length,
+    units:inv.reduce((s,p)=>s+p.qty,0),
+    value:inv.reduce((s,p)=>s+p.value,0),
+    oos:inv.filter(p=>p.status==="OUT OF STOCK").length,
+    critical:inv.filter(p=>p.status==="CRITICAL").length,
+    low:inv.filter(p=>p.status==="LOW STOCK").length,
+    over:inv.filter(p=>p.status==="OVERSTOCKED").length,
+    slow:slow.length,
+    pendingPOs:pos.filter(p=>p.status==="PENDING").length,
+    delayedPOs:pos.filter(p=>p.status==="DELAYED").length,
+    avgInvDays:+(inv.filter(p=>p.invDays<999).reduce((s,p)=>s+p.invDays,0)/Math.max(1,inv.filter(p=>p.invDays<999).length)).toFixed(1),
+  }),[inv,pos,slow]);
 
-  const fo=useMemo(()=>{
-    let f=vo;
-    if(oF.s) f=f.filter(o=>(o.item+o.poId+o.vendor).toLowerCase().includes(oF.s.toLowerCase()));
-    if(oF.st) f=f.filter(o=>o.st===oF.st);
-    if(oF.pr) f=f.filter(o=>o.pri===oF.pr);
-    if(oF.v&&isA) f=f.filter(o=>o.vendor===oF.v);
-    return f;
-  },[vo,oF,isA]);
+  const tabs=[
+    {id:"dashboard",icon:"▦",label:"Dashboard"},
+    {id:"exceptions",icon:"⚠",label:"Exceptions",badge:exceptions.filter(e=>e.sev==="CRITICAL").length},
+    null,
+    {id:"inventory",icon:"⊞",label:"Inventory Overview"},
+    {id:"sku",icon:"◫",label:"SKU Master"},
+    {id:"movements",icon:"⇄",label:"Stock Movements"},
+    null,
+    {id:"po",icon:"📋",label:"Purchase Orders"},
+    {id:"suppliers",icon:"🏭",label:"Suppliers"},
+    null,
+    {id:"replenishment",icon:"↻",label:"Replenishment"},
+    {id:"stockout",icon:"📉",label:"Stockout Risk"},
+    {id:"slow",icon:"🐢",label:"Slow Moving"},
+    {id:"overstock",icon:"📦",label:"Excess Inventory"},
+    {id:"abc",icon:"Ⓐ",label:"ABC Analysis"},
+    null,
+    {id:"reports",icon:"📊",label:"Reports"},
+  ];
 
-  const ff=useMemo(()=>{
-    let f=vf;
-    if(fF.s) f=f.filter(x=>(x.vendor+x.disc).toLowerCase().includes(fF.s.toLowerCase()));
-    if(fF.st) f=f.filter(x=>x.fs===fF.st);
-    return f;
-  },[vf,fF]);
+  const PAGE_TITLES={dashboard:"Executive Dashboard",exceptions:"Exception Management",inventory:"Inventory Overview",sku:"SKU Master",movements:"Stock Movements",po:"Purchase Orders",suppliers:"Supplier Performance",replenishment:"Replenishment Analysis",stockout:"Stockout Risk",slow:"Slow-Moving Inventory",overstock:"Excess Inventory",abc:"ABC Analysis",reports:"Reports"};
 
-  const inc=useMemo(()=>{
-    const d7=new Date();d7.setDate(d7.getDate()+7);
-    const d7s=d7.toISOString().split("T")[0];
-    return vo.filter(o=>o.st!=="COMPLETED"&&o.lc&&o.lc<=d7s).sort((a,b)=>a.lc.localeCompare(b.lc)).slice(0,8);
-  },[vo]);
-
-  const unreadNotes=useMemo(()=>notes.filter(n=>!n.readByAdmin&&n.role==="vendor").length,[notes]);
-  const vNames=[...new Set(INIT_ORDERS.map(o=>o.vendor)),...users.filter(u=>u.role==="vendor"&&u.vKey).map(u=>u.vKey)].filter((v,i,a)=>a.indexOf(v)===i).sort();
-
-  const saveO=d=>{
-    const calc=calcO(d);
-    if(editOI!==null) setOrders(p=>p.map((o,i)=>i===editOI?calc:o));
-    else setOrders(p=>[...p,calc]);
-    setShowOM(false);setEditOI(null);
-  };
-  const saveF=d=>{
-    const calc=calcF(d);
-    if(editFI!==null) setFups(p=>p.map((f,i)=>i===editFI?calc:f));
-    else setFups(p=>[...p,calc]);
-    setShowFM(false);setEditFI(null);
-  };
-  const addNote=(note)=>setNotes(p=>[...p,{id:uid(),...note,time:new Date().toISOString(),readByAdmin:note.role==="admin"}]);
-  const deleteNote=(id)=>setNotes(p=>p.filter(n=>n.id!==id));
-  const markNotesRead=()=>setNotes(p=>p.map(n=>({...n,readByAdmin:true})));
-
-  const aTabs=[["dashboard","📊","DASHBOARD"],["orders","📦","ORDERS"],["followup","📞","FOLLOW-UPS"],["notes","📝","VENDOR NOTES"],["vendors","🏭","VENDORS"],["reports","📄","REPORTS"],["settings","⚙️","ADMIN PANEL"]];
-  const vTabs=[["dashboard","📊","DASHBOARD"],["orders","📦","MY ORDERS"],["notes","📝","MY NOTES"]];
-  const tabs=isA?aTabs:vTabs;
-
-  if(!user) return <Login users={users} onLogin={u=>{setUser(u);setTab("dashboard");}}/>;
+  if(!user) return <Login onLogin={u=>{setUser(u);setTab("dashboard");}}/>;
 
   return(
     <div className="app">
-      <div className="topbar">
-        <span className="tb-brand">⬡ VENDOR OPS</span>
-        <span className={`tb-pill ${user.role}`}>{user.role}</span>
-        <span className="tb-user">{user.name}</span>
-        <span className="tb-date">{nowS}</span>
-        <div className="tb-av" style={{fontSize:10}}>{user.av||initials(user.name)}</div>
-        <button className="tb-out" onClick={()=>{setUser(null);setTab("dashboard");}}>Sign Out</button>
-      </div>
-      <div className="nav">
-        {tabs.map(([k,ic,l])=>(
-          <button key={k} className={`ntab${tab===k?" active":""}`} onClick={()=>{setTab(k);if(k==="notes"&&isA)markNotesRead();}}>
-            {ic} {l}
-            {k==="notes"&&unreadNotes>0&&<span className="nbadge">{unreadNotes}</span>}
-          </button>
-        ))}
-      </div>
-      <div className="main">
-        {!isA&&<div className="vb"><span style={{fontSize:22}}>🏭</span><div><div style={{fontSize:13,fontWeight:600,color:"var(--ac)"}}>{user.name}</div><div style={{fontSize:11,color:"var(--t3)"}}>Viewing your orders and posting updates</div></div></div>}
-        {tab==="dashboard"&&<Dash kpis={kpis} orders={vo} fups={vf} vends={isA?vends:vends.filter(v=>v.vendor===vK)} inc={inc} isA={isA} notes={notes} vK={vK}/>}
-        {tab==="orders"&&<OTrack orders={fo} oF={oF} setOF={setOF} vNames={vNames} isA={isA} onAdd={isA?()=>{setEditOI(null);setShowOM(true);}:null} onEdit={isA?i=>{setEditOI(i);setShowOM(true);}:null} onDel={isA?i=>setOrders(p=>p.filter((_,j)=>j!==i)):null}/>}
-        {tab==="followup"&&isA&&<FLog fups={ff} fF={fF} setFF={setFF} isA={isA} vNames={vNames} onAdd={()=>{setEditFI(null);setShowFM(true);}} onEdit={i=>{setEditFI(i);setShowFM(true);}} onDel={i=>setFups(p=>p.filter((_,j)=>j!==i))}/>}
-        {tab==="notes"&&<NotesPage notes={notes} isA={isA} user={user} vK={vK} orders={isA?co:vo} onAdd={addNote} onDelete={isA?deleteNote:null}/>}
-        {tab==="vendors"&&isA&&<VMaster vends={vends} orders={co} users={users}/>}
-        {tab==="reports"&&<Reports orders={vo} fups={vf} vends={isA?vends:vends.filter(v=>v.vendor===vK)} inc={inc} isA={isA}/>}
-        {tab==="settings"&&isA&&<AdminPanel users={users} setUsers={setUsers}/>}
-      </div>
-      {showOM&&<OModal initial={editOI!==null?orders[editOI]:null} vNames={vNames} onSave={saveO} onClose={()=>{setShowOM(false);setEditOI(null);}}/>}
-      {showFM&&<FModal initial={editFI!==null?fups[editFI]:null} vNames={vNames} onSave={saveF} onClose={()=>{setShowFM(false);setEditFI(null);}}/>}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════ NOTES PAGE ═════════════════════════════════ */
-function NotesPage({notes,isA,user,vK,orders,onAdd,onDelete}){
-  const [text,setText]=useState("");
-  const [selPo,setSelPo]=useState("");
-
-  const visNotes=isA?[...notes].sort((a,b)=>b.time.localeCompare(a.time)):notes.filter(n=>n.vendor===vK).sort((a,b)=>b.time.localeCompare(a.time));
-  const myOrders=[...new Set(orders.map(o=>o.poId))];
-
-  const submit=()=>{
-    if(!text.trim()) return;
-    onAdd({poId:selPo,vendor:isA?"ADMIN":vK,authorName:user.name,role:user.role,text:text.trim()});
-    setText(""); setSelPo("");
-  };
-
-  return(
-    <div>
-      <div className="sh">
-        <span className="sh-t">{isA?"Vendor Notes & Updates":"Post an Update"}</span>
-        <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{visNotes.length} notes</span>
-      </div>
-
-      {/* Input area */}
-      <div className="notes-panel">
-        <div className="notes-header">
-          <span className="notes-title">{isA?"Post Admin Note":"Post Update on Your Orders"}</span>
+      {/* ── SIDEBAR ── */}
+      <div className="sidebar">
+        <div className="sb-brand">
+          <div className="sb-logo">FIIRS</div>
+          <div className="sb-name">Inventory Intelligence</div>
+          <div className="sb-co">Vriddhi Consumer Goods</div>
         </div>
-        <div className="note-input-area">
-          <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>
-            <select className="note-po-select" value={selPo} onChange={e=>setSelPo(e.target.value)}>
-              <option value="">Select PO (optional)</option>
-              {myOrders.map(p=><option key={p} value={p}>{p}</option>)}
-            </select>
-            <span style={{fontSize:11,color:"var(--t3)",alignSelf:"center"}}>
-              {isA?"Admin reply / note visible to vendors":"Your update will be visible to admin"}
-            </span>
+        {tabs.map((t,i)=>t===null?<div key={i} className="sb-section" style={{paddingTop:6,paddingBottom:0,marginTop:4,borderTop:"1px solid var(--bo)"}}></div>:
+          <div key={t.id} className={`sb-item${tab===t.id?" active":""}`} onClick={()=>setTab(t.id)}>
+            <i className="sb-icon">{t.icon}</i>{t.label}
+            {t.badge>0&&<span className="sb-badge">{t.badge}</span>}
           </div>
-          <div className="note-input-row">
-            <textarea className="note-textarea" placeholder={isA?"Write a note or reply to vendor update...":"Post a status update on your order — e.g. dispatch date, quantity shipped, delay reason..."} value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&e.ctrlKey){e.preventDefault();submit();}}}/>
-            <button className="btn btn-p" onClick={submit} style={{alignSelf:"flex-end",flexShrink:0}}>Post</button>
-          </div>
-          <div style={{fontSize:10,color:"var(--t3)",marginTop:5}}>Ctrl+Enter to post quickly</div>
+        )}
+        <div className="sb-foot">
+          <div>As of <strong>{FMT(TODAY_STR)}</strong></div>
+          <div style={{marginTop:3,color:"var(--t3)"}}>Portfolio Project · FMCG Ops</div>
         </div>
+      </div>
 
-        {/* Notes list */}
-        <div className="notes-list">
-          {visNotes.length===0&&<div className="empty">No notes yet — vendors can post updates on their orders here</div>}
-          {visNotes.map(n=>(
-            <div key={n.id} className={`note-item ${n.role==="vendor"?"vendor-note":"admin-note"}`}>
-              <div className="note-meta">
-                <span className={`note-author ${n.role==="admin"?"admin-author":""}`}>
-                  {n.role==="admin"?"🔵":"🟢"} {n.authorName}
-                </span>
-                <span className="note-date">{fmtDT(n.time)}</span>
-                {n.poId&&<span className="note-po">{n.poId}</span>}
-                {isA&&n.role==="vendor"&&!n.readByAdmin&&<span style={{fontSize:9,padding:"1px 5px",background:"var(--red)",color:"#fff",borderRadius:3,fontWeight:700}}>NEW</span>}
-              </div>
-              <div className="note-text">{n.text}</div>
-              {isA&&onDelete&&<span className="note-del" onClick={()=>onDelete(n.id)} title="Delete">🗑️</span>}
-            </div>
-          ))}
+      {/* ── MAIN ── */}
+      <div className="main-wrap">
+        <div className="topbar">
+          <div style={{flex:1}}>
+            <div className="tb-title">{PAGE_TITLES[tab]}</div>
+            <div className="tb-sub">FIIRS · {COMPANY}</div>
+          </div>
+          <div className="tb-av">{user.av}</div>
+          <span style={{fontSize:12,color:"var(--t2)"}}>{user.name}</span>
+          <button className="tb-out" onClick={()=>setUser(null)}>Sign Out</button>
+        </div>
+        <div className="content">
+          {tab==="dashboard"    &&<Dashboard kpis={kpis} inv={inv} pos={pos} supPerf={supPerf} abc={abc} monthly={monthly} locStock={locStock} insights={insights} exceptions={exceptions} setTab={setTab}/>}
+          {tab==="exceptions"   &&<Exceptions exceptions={exceptions}/>}
+          {tab==="inventory"    &&<Inventory inv={inv} locStock={locStock}/>}
+          {tab==="sku"          &&<SKUMaster inv={inv}/>}
+          {tab==="movements"    &&<Movements txns={txns}/>}
+          {tab==="po"           &&<PurchaseOrders pos={pos}/>}
+          {tab==="suppliers"    &&<Suppliers supPerf={supPerf} pos={pos}/>}
+          {tab==="replenishment"&&<Replenishment inv={inv}/>}
+          {tab==="stockout"     &&<StockoutRisk inv={inv}/>}
+          {tab==="slow"         &&<SlowMoving slow={slow}/>}
+          {tab==="overstock"    &&<Overstock inv={inv}/>}
+          {tab==="abc"          &&<ABCAnalysis abc={abc}/>}
+          {tab==="reports"      &&<Reports inv={inv} pos={pos} supPerf={supPerf} abc={abc} slow={slow} kpis={kpis} insights={insights} exceptions={exceptions} setTab={setTab}/>}
         </div>
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════════════ ADMIN PANEL ════════════════════════════════ */
-function AdminPanel({users,setUsers}){
-  const [showAdd,setShowAdd]=useState(false);
-  const [editId,setEditId]=useState(null);
-  const blank={username:"",password:"",role:"vendor",name:"",vKey:"",email:"",phone:""};
-  const [form,setForm]=useState(blank);
-  const sf=(k,v)=>setForm(f=>({...f,[k]:v}));
+// ══════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════
+function Dashboard({kpis,inv,pos,supPerf,abc,monthly,locStock,insights,exceptions,setTab}){
+  const catData=useMemo(()=>{
+    const m={};inv.forEach(p=>{m[p.cat]=(m[p.cat]||0)+p.value;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  },[inv]);
 
-  const save=()=>{
-    if(!form.username.trim()||!form.password.trim()||!form.name.trim()){alert("Username, password and name are required.");return;}
-    if(editId){
-      setUsers(p=>p.map(u=>u.id===editId?{...u,...form,av:initials(form.name)}:u));
-    }else{
-      if(users.find(u=>u.username===form.username.trim())){alert("Username already exists.");return;}
-      setUsers(p=>[...p,{...form,id:uid(),av:initials(form.name),username:form.username.trim()}]);
-    }
-    setShowAdd(false);setEditId(null);setForm(blank);
-  };
-
-  const del=(id)=>{
-    if(!window.confirm("Remove this user?")) return;
-    setUsers(p=>p.filter(u=>u.id!==id));
-  };
-
-  const edit=(u)=>{
-    setForm({username:u.username,password:u.password,role:u.role,name:u.name,vKey:u.vKey||"",email:u.email||"",phone:u.phone||""});
-    setEditId(u.id);setShowAdd(true);
-  };
+  const statusData=useMemo(()=>{
+    const m={};inv.forEach(p=>{m[p.status]=(m[p.status]||0)+1;});return m;
+  },[inv]);
 
   return(
     <div>
-      <div className="sh">
-        <span className="sh-t">Admin Panel — Manage Users</span>
-        <button className="btn btn-p" onClick={()=>{setForm(blank);setEditId(null);setShowAdd(true);}}>+ Add User</button>
-      </div>
-
-      <div style={{marginBottom:12,padding:"12px 16px",background:"rgba(0,144,240,.07)",border:"1px solid rgba(0,144,240,.2)",borderRadius:10,fontSize:12,color:"#93c5fd",lineHeight:1.7}}>
-        <strong style={{color:"#60a5fa"}}>ℹ️ How to manage users:</strong> Add new vendors, remove old ones, or edit any user's name, password, email, or phone. Changes take effect immediately for the current session. For permanent changes, edit the <code style={{fontSize:11,background:"var(--bg4)",padding:"1px 4px",borderRadius:3}}>INIT_USERS</code> array in the HTML file and save.
-      </div>
-
-      {/* Admins */}
-      <div className="admin-panel" style={{marginBottom:16}}>
-        <div className="ap-header"><span className="ap-title">🔵 Admin Accounts</span><span style={{fontSize:11,color:"var(--t3)"}}>{users.filter(u=>u.role==="admin").length} admins</span></div>
-        {users.filter(u=>u.role==="admin").map(u=>(
-          <div key={u.id} className="ap-row">
-            <div className="ap-av admin-av">{u.av||initials(u.name)}</div>
-            <div className="ap-info">
-              <div className="ap-name">{u.name}</div>
-              <div className="ap-detail">@{u.username} · {u.email||"no email"}</div>
-            </div>
-            <span className="ap-role admin">ADMIN</span>
-            <div className="ap-actions">
-              <button className="btn btn-g" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>edit(u)}>Edit</button>
-              <button className="btn btn-r" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>del(u.id)}>Remove</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Vendors */}
-      <div className="admin-panel">
-        <div className="ap-header"><span className="ap-title">🟢 Vendor Accounts</span><span style={{fontSize:11,color:"var(--t3)"}}>{users.filter(u=>u.role==="vendor").length} vendors</span></div>
-        {users.filter(u=>u.role==="vendor").map(u=>(
-          <div key={u.id} className="ap-row">
-            <div className="ap-av vendor-av">{u.av||initials(u.name)}</div>
-            <div className="ap-info">
-              <div className="ap-name">{u.name}</div>
-              <div className="ap-detail">@{u.username} · {u.vKey||"no vendor key"} · {u.email||"no email"} · {u.phone||"no phone"}</div>
-            </div>
-            <span className="ap-role vendor">VENDOR</span>
-            <div className="ap-actions">
-              <button className="btn btn-g" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>edit(u)}>Edit</button>
-              <button className="btn btn-r" style={{fontSize:11,padding:"5px 10px"}} onClick={()=>del(u.id)}>Remove</button>
-            </div>
-          </div>
-        ))}
-        {users.filter(u=>u.role==="vendor").length===0&&<div className="empty">No vendors added yet</div>}
-      </div>
-
-      {/* Add/Edit Modal */}
-      {showAdd&&(
-        <div className="mo" onClick={e=>e.target===e.currentTarget&&(setShowAdd(false),setEditId(null))}>
-          <div className="md">
-            <div className="md-t">{editId?"Edit User":"Add New User"}</div>
-            <div className="fg">
-              <div className="fl"><label>Full Name *</label><input className="fi" value={form.name} onChange={e=>sf("name",e.target.value)} placeholder="e.g. Raj Enterprises"/></div>
-              <div className="fl"><label>Username *</label><input className="fi" value={form.username} onChange={e=>sf("username",e.target.value)} placeholder="e.g. raj_ent" disabled={!!editId}/></div>
-              <div className="fl"><label>Password *</label><input className="fi" value={form.password} onChange={e=>sf("password",e.target.value)} placeholder="e.g. Raj@2026"/></div>
-              <div className="fl"><label>Role</label>
-                <select className="fi" value={form.role} onChange={e=>sf("role",e.target.value)}>
-                  <option value="vendor">Vendor</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              {form.role==="vendor"&&<div className="fl"><label>Vendor Key (must match order data)</label><input className="fi" value={form.vKey} onChange={e=>sf("vKey",e.target.value)} placeholder="e.g. RAJ ENTERPRISES"/></div>}
-              <div className="fl"><label>Email</label><input className="fi" type="email" value={form.email} onChange={e=>sf("email",e.target.value)} placeholder="vendor@email.com"/></div>
-              <div className="fl"><label>Phone</label><input className="fi" value={form.phone} onChange={e=>sf("phone",e.target.value)} placeholder="9876543210"/></div>
-            </div>
-            {form.role==="vendor"&&<div style={{fontSize:11,color:"#fbbf24",padding:"10px 12px",background:"var(--bg3)",borderRadius:6,marginBottom:12}}>
-              ⚠️ <strong>Vendor Key</strong> must exactly match the vendor name used in orders. Example: if orders say "RAJ ENTERPRISES", the vendor key must be "RAJ ENTERPRISES" (same caps, same spelling).
-            </div>}
-            <div className="md-f">
-              <button className="btn btn-g" onClick={()=>{setShowAdd(false);setEditId(null);}}>Cancel</button>
-              <button className="btn btn-p" onClick={save}>{editId?"Save Changes":"Add User"}</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════ DASHBOARD ══════════════════════════════════ */
-function Dash({kpis,orders,fups,vends,inc,isA,notes,vK}){
-  const ov=fups.filter(f=>f.fs==="OVERDUE");
-  const ms=fups.filter(f=>f.sn==="COMMITMENT MISSED");
-  const d3=orders.filter(o=>o.st==="DELAYED"&&(o.del||0)>3);
-  const hp=orders.filter(o=>o.st==="PENDING"&&o.pri==="HIGH");
-  const recentNotes=isA?notes.filter(n=>n.role==="vendor").sort((a,b)=>b.time.localeCompare(a.time)).slice(0,3):notes.filter(n=>n.vendor===vK).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,3);
-  return(
-    <div>
+      {/* KPIs */}
       <div className="kgrid">
-        <div className="kcard" style={{"--kc":"#60a5fa"}}><div className="kcard-label">Open POs</div><div className="kcard-val">{kpis.op}</div><div className="kcard-sub">Active line items</div></div>
-        <div className="kcard" style={{"--kc":"#f87171"}}><div className="kcard-label">Delayed</div><div className="kcard-val">{kpis.dl}</div><div className="kcard-sub">Past committed date</div></div>
-        <div className="kcard" style={{"--kc":"#fbbf24"}}><div className="kcard-label">Pending Qty</div><div className="kcard-val">{kpis.pq.toLocaleString()}</div><div className="kcard-sub">Units outstanding</div></div>
-        <div className="kcard" style={{"--kc":"#fb923c"}}><div className="kcard-label">Follow-ups Due</div><div className="kcard-val">{kpis.ft}</div><div className="kcard-sub">Today + overdue</div></div>
-        {isA&&<div className="kcard" style={{"--kc":"#f87171"}}><div className="kcard-label">High Risk</div><div className="kcard-val">{kpis.hr}</div><div className="kcard-sub">Vendors to watch</div></div>}
-        {isA&&<div className="kcard" style={{"--kc":"#10e8b8"}}><div className="kcard-label">Avg VRI Score</div><div className="kcard-val">{kpis.av}</div><div className="kcard-sub">Out of 10</div></div>}
+        <div className="kcard" style={{"--kc":"var(--ac2)"}}><div className="kcard-label">Total SKUs</div><div className="kcard-val">{N(kpis.skus)}</div><div className="kcard-sub">Active products</div></div>
+        <div className="kcard" style={{"--kc":"var(--ac2)"}}><div className="kcard-label">Total Units</div><div className="kcard-val">{N(kpis.units)}</div><div className="kcard-sub">All warehouses</div></div>
+        <div className="kcard" style={{"--kc":"var(--ac)"}}><div className="kcard-label">Inventory Value</div><div className="kcard-val" style={{fontSize:18}}>{INR(kpis.value)}</div><div className="kcard-sub">At unit cost</div></div>
+        <div className="kcard" style={{"--kc":"var(--red)"}}><div className="kcard-label">Out of Stock</div><div className="kcard-val">{kpis.oos}</div><div className="kcard-sub">Zero stock</div></div>
+        <div className="kcard" style={{"--kc":"var(--red)"}}><div className="kcard-label">Critical Stock</div><div className="kcard-val">{kpis.critical}</div><div className="kcard-sub">≤ 3 days left</div></div>
+        <div className="kcard" style={{"--kc":"var(--yel)"}}><div className="kcard-label">Low Stock</div><div className="kcard-val">{kpis.low}</div><div className="kcard-sub">Below reorder</div></div>
+        <div className="kcard" style={{"--kc":"var(--pur)"}}><div className="kcard-label">Overstocked</div><div className="kcard-val">{kpis.over}</div><div className="kcard-sub">&gt; 1.8× target</div></div>
+        <div className="kcard" style={{"--kc":"var(--ac2)"}}><div className="kcard-label">Slow Moving</div><div className="kcard-val">{kpis.slow}</div><div className="kcard-sub">≥ 30 days idle</div></div>
+        <div className="kcard" style={{"--kc":"var(--yel)"}}><div className="kcard-label">Pending POs</div><div className="kcard-val">{N(kpis.pendingPOs)}</div><div className="kcard-sub">Awaiting delivery</div></div>
+        <div className="kcard" style={{"--kc":"var(--org)"}}><div className="kcard-label">Delayed POs</div><div className="kcard-val">{kpis.delayedPOs}</div><div className="kcard-sub">Past expected date</div></div>
+        <div className="kcard" style={{"--kc":"var(--green)"}}><div className="kcard-label">Avg Inv. Days</div><div className="kcard-val">{DAYS(kpis.avgInvDays)}</div><div className="kcard-sub">All SKUs</div></div>
       </div>
-      <div className="dg">
-        {isA&&<div className="dc">
-          <div className="dc-t">Vendor Scoreboard</div>
-          {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:"1px solid var(--bo)"}}>
-              <span style={{width:16,fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{i+1}</span>
-              <span style={{flex:1,fontSize:12,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.vendor}</span>
-              <SBar score={v.score}/><Bdg v={v.risk}/>
-            </div>
-          ))}
-        </div>}
-        <div className="dc">
-          <div className="dc-t">Action Required</div>
-          {isA&&<><div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Overdue Follow-ups</span><span className="ain" style={{color:"#f87171"}}>{ov.length}</span></div>
-          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Commitment Missed</span><span className="ain" style={{color:"#f87171"}}>{ms.length}</span></div></>}
-          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>Delayed &gt; 3 Days</span><span className="ain" style={{color:"#fbbf24"}}>{d3.length}</span></div>
-          <div className="ai"><span style={{fontSize:12,color:"var(--t2)"}}>High Priority Pending</span><span className="ain" style={{color:"#fbbf24"}}>{hp.length}</span></div>
-        </div>
-      </div>
-      <div className="dg">
-        <div className="dc" style={{gridColumn:isA?"1 / -1":"auto"}}>
-          <div className="dc-t">Incoming This Week</div>
-          <div className="ir" style={{fontWeight:700,fontSize:10,letterSpacing:1,color:"var(--t3)",textTransform:"uppercase"}}><span>Item / Vendor</span><span>Pending</span><span>ETA</span><span>Status</span></div>
-          {inc.length===0?<div className="empty">Nothing incoming this week</div>:inc.map((o,i)=>(
-            <div key={i} className="ir">
-              <div><div style={{fontSize:12}}>{o.item}</div><div style={{fontSize:11,color:"var(--t3)"}}>{o.vendor}</div></div>
-              <div style={{fontFamily:"var(--mono)",fontSize:12}}>{o.pend}</div>
-              <div style={{fontFamily:"var(--mono)",fontSize:11}}>{fmt(o.lc)}</div>
-              <Bdg v={o.st}/>
-            </div>
-          ))}
-        </div>
-      </div>
-      {recentNotes.length>0&&<div className="dc" style={{marginBottom:20}}>
-        <div className="dc-t">{isA?"Recent Vendor Updates":"Your Recent Notes"}</div>
-        {recentNotes.map(n=>(
-          <div key={n.id} style={{padding:"10px 0",borderBottom:"1px solid var(--bo)"}}>
-            <div style={{display:"flex",gap:8,marginBottom:4,alignItems:"center"}}>
-              <span style={{fontSize:11,fontWeight:700,color:n.role==="admin"?"#60a5fa":"var(--ac)"}}>{n.authorName}</span>
-              {n.poId&&<span style={{fontSize:10,padding:"1px 6px",background:"var(--bg4)",border:"1px solid var(--bo)",borderRadius:3,color:"var(--t2)",fontFamily:"var(--mono)"}}>{n.poId}</span>}
-              <span style={{fontSize:10,color:"var(--t3)",marginLeft:"auto"}}>{fmtDT(n.time)}</span>
-            </div>
-            <div style={{fontSize:12,color:"var(--t1)",lineHeight:1.5}}>{n.text}</div>
+
+      {/* Insights */}
+      <div className="insights-box">
+        <div className="insights-title">⚡ Business Intelligence — Key Observations</div>
+        {insights.map((ins,i)=>(
+          <div key={i} className="insight-row">
+            <div className={`insight-dot id-${ins.lv}`}/>
+            <div className="insight-text">{ins.text}</div>
           </div>
         ))}
-      </div>}
-    </div>
-  );
-}
+      </div>
 
-/* ═══════════════════════════════ ORDER TRACKER ══════════════════════════════ */
-function OTrack({orders,oF,setOF,vNames,isA,onAdd,onEdit,onDel}){
-  return(
-    <div>
-      <div className="sh"><span className="sh-t">{isA?"Order Tracker":"My Orders"}</span>
-        <div className="sh-r"><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{orders.length} lines</span>
-        {isA&&<button className="btn btn-p" onClick={onAdd}>+ Add PO Line</button>}</div>
+      {/* Charts row 1 */}
+      <div className="charts-grid">
+        <div className="chart-box">
+          <div className="chart-title">Inventory Value by Category</div>
+          <CChart id="cat" height={200} cfg={{type:"bar",data:{labels:catData.map(c=>c[0]),datasets:[{label:"Value (₹)",data:catData.map(c=>c[1]),backgroundColor:CHART_COLORS,borderRadius:4}]},options:{...CHART_OPTS,plugins:{...CHART_OPTS.plugins,legend:{display:false}},scales:{x:{ticks:{color:"#4e5870",font:{size:10}}},y:{ticks:{color:"#4e5870",font:{size:10},callback:v=>"₹"+v.toLocaleString("en-IN")}}}}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">Stock Health Distribution</div>
+          <CChart id="health" height={200} cfg={{type:"doughnut",data:{labels:Object.keys(statusData),datasets:[{data:Object.values(statusData),backgroundColor:["#f04438","#ff6b6b","#fbbf24","#22c55e","#a855f7"],borderWidth:0}]},options:{...CHART_OPTS,cutout:"65%"}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">Stock Movement — 6 Months</div>
+          <CChart id="mov" height={200} cfg={{type:"line",data:{labels:monthly.map(m=>m.label),datasets:[{label:"Sales",data:monthly.map(m=>m.sales),borderColor:"#f04438",backgroundColor:"rgba(240,68,56,.08)",tension:.35,fill:true},{label:"Purchases",data:monthly.map(m=>m.purchases),borderColor:"#10e8b8",backgroundColor:"rgba(16,232,184,.06)",tension:.35,fill:true}]},options:{...CHART_OPTS,scales:{x:{ticks:{color:"#4e5870",font:{size:10}}},y:{ticks:{color:"#4e5870",font:{size:10}}}}}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">Inventory Value by Warehouse</div>
+          <CChart id="wh" height={200} cfg={{type:"bar",data:{labels:locStock.map(l=>l.city),datasets:[{label:"Value (₹)",data:locStock.map(l=>l.value),backgroundColor:CHART_COLORS,borderRadius:4}]},options:{...CHART_OPTS,indexAxis:"y",plugins:{...CHART_OPTS.plugins,legend:{display:false}},scales:{x:{ticks:{color:"#4e5870",font:{size:10},callback:v=>"₹"+v.toLocaleString("en-IN")}},y:{ticks:{color:"#4e5870",font:{size:10}}}}}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">Supplier On-Time Delivery %</div>
+          <CChart id="sup" height={200} cfg={{type:"bar",data:{labels:supPerf.slice(0,10).map(s=>s.name.split(" ").slice(0,2).join(" ")),datasets:[{label:"On-Time %",data:supPerf.slice(0,10).map(s=>s.onTimePct),backgroundColor:supPerf.slice(0,10).map(s=>s.onTimePct>=90?"#22c55e":s.onTimePct>=75?"#f5c518":"#f04438"),borderRadius:3}]},options:{...CHART_OPTS,indexAxis:"y",plugins:{...CHART_OPTS.plugins,legend:{display:false}},scales:{x:{min:0,max:100,ticks:{color:"#4e5870",font:{size:10},callback:v=>v+"%"}},y:{ticks:{color:"#4e5870",font:{size:10}}}}}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">ABC Classification by SKU Count</div>
+          <CChart id="abcDash" height={200} cfg={{type:"doughnut",data:{labels:["Class A","Class B","Class C"],datasets:[{data:[abc.filter(x=>x.abc==="A").length,abc.filter(x=>x.abc==="B").length,abc.filter(x=>x.abc==="C").length],backgroundColor:["#10e8b8","#a855f7","#22c55e"],borderWidth:0}]},options:{...CHART_OPTS,cutout:"65%"}}}/>
+        </div>
       </div>
-      <div className="filters">
-        <input className="filt" placeholder="Search item / PO…" value={oF.s} onChange={e=>setOF(f=>({...f,s:e.target.value}))}/>
-        <select className="filt" value={oF.st} onChange={e=>setOF(f=>({...f,st:e.target.value}))}><option value="">All Status</option><option>PENDING</option><option>DELAYED</option><option>COMPLETED</option></select>
-        <select className="filt" value={oF.pr} onChange={e=>setOF(f=>({...f,pr:e.target.value}))}><option value="">All Priority</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select>
-        {isA&&<select className="filt" value={oF.v} onChange={e=>setOF(f=>({...f,v:e.target.value}))}><option value="">All Vendors</option>{vNames.map(v=><option key={v}>{v}</option>)}</select>}
-        {(oF.s||oF.st||oF.pr||oF.v)&&<button className="btn btn-g" onClick={()=>setOF({s:"",st:"",pr:"",v:""})}>Clear</button>}
-      </div>
-      <div className="tw"><table>
-        <thead><tr>
-          <th>PO ID</th><th>Ln</th><th>Item</th><th>Cat</th>{isA&&<th>Vendor</th>}
-          <th>Ordered</th><th>Rcvd</th><th>Pending</th><th>Expected</th><th>Committed</th>
-          <th>Delivered</th><th>Status</th><th>Delay</th><th>Priority</th><th>Rev</th>
-          <th>Lead</th><th>OnTime</th><th>Risk</th>{isA&&<th></th>}
-        </tr></thead>
-        <tbody>
-          {orders.length===0?<tr><td colSpan={20}><div className="empty">No orders found</div></td></tr>:
-          orders.map((o,i)=>(
-            <tr key={i}>
-              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
-              <td className="tc">{o.lineId}</td>
-              <td style={{maxWidth:130,overflow:"hidden",textOverflow:"ellipsis"}}>{o.item}</td>
-              <td style={{color:"var(--t2)",fontSize:11}}>{o.cat}</td>
-              {isA&&<td style={{maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",color:"var(--t2)"}}>{o.vendor}</td>}
-              <td className="tc">{o.qO}</td><td className="tc">{o.qR}</td>
-              <td className="tc" style={{color:o.pend>0?"var(--yel)":"var(--green)"}}>{o.pend}</td>
-              <td className="tc">{fmt(o.exp)}</td><td className="tc">{fmt(o.lc)}</td>
-              <td className="tc">{fmt(o.ad)}</td>
-              <td><Bdg v={o.st}/></td>
-              <td className="tc" style={{color:o.del>0?"var(--red)":"var(--t3)"}}>{o.del||0}</td>
-              <td><Bdg v={o.pri}/></td>
-              <td className="tc">{o.rev}</td><td className="tc">{o.lead}d</td>
-              <td>{o.onT?<Bdg v={o.onT}/>:"—"}</td>
-              <td><Bdg v={o.risk}/></td>
-              {isA&&<td><span className="ia" onClick={()=>onEdit(i)}>✏️</span><span className="ia" onClick={()=>onDel(i)}>🗑️</span></td>}
-            </tr>
-          ))}
-        </tbody>
-      </table></div>
-    </div>
-  );
-}
 
-/* ═══════════════════════════════ FOLLOW-UP LOG ══════════════════════════════ */
-function FLog({fups,fF,setFF,isA,vNames,onAdd,onEdit,onDel}){
-  return(
-    <div>
-      <div className="sh"><span className="sh-t">Follow-Up Log</span>
-        <div className="sh-r"><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{fups.length} entries</span>
-        <button className="btn btn-p" onClick={onAdd}>+ Log Follow-Up</button></div>
-      </div>
-      <div className="filters">
-        <input className="filt" placeholder="Search…" value={fF.s} onChange={e=>setFF(f=>({...f,s:e.target.value}))}/>
-        <select className="filt" value={fF.st} onChange={e=>setFF(f=>({...f,st:e.target.value}))}><option value="">All Status</option><option>UPCOMING</option><option>TODAY</option><option>OVERDUE</option></select>
-        {(fF.s||fF.st)&&<button className="btn btn-g" onClick={()=>setFF({s:"",st:""})}>Clear</button>}
-      </div>
-      <div className="tw"><table>
-        <thead><tr><th>Date</th><th>Vendor</th><th>PO ID</th><th>Line</th><th>Mode</th><th>Discussion</th><th>New Commit</th><th>Prev Commit</th><th>Change</th><th>Next F/U</th><th>Status Note</th><th>F/U Status</th><th>Esc.</th><th></th></tr></thead>
-        <tbody>
-          {fups.length===0?<tr><td colSpan={14}><div className="empty">No follow-ups logged</div></td></tr>:
-          fups.map((f,i)=>(
-            <tr key={i}>
-              <td className="tc">{fmt(f.date)}</td>
-              <td style={{color:"var(--t2)",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{f.vendor}</td>
-              <td className="tc" style={{color:"var(--ac2)"}}>{f.poId||"—"}</td>
-              <td className="tc">{f.li||"—"}</td>
-              <td><span style={{fontSize:10,padding:"2px 5px",borderRadius:3,background:"var(--bg5)",color:"var(--t2)",fontWeight:600}}>{f.mode}</span></td>
-              <td style={{maxWidth:130,overflow:"hidden",textOverflow:"ellipsis",color:"var(--t2)"}}>{f.disc}</td>
-              <td className="tc">{fmt(f.nc)}</td><td className="tc">{fmt(f.pc)}</td>
-              <td className="tc" style={{color:f.chg>0?"var(--red)":f.chg<0?"var(--green)":"var(--t3)"}}>{f.chg>0?"+"+f.chg:f.chg}</td>
-              <td className="tc">{fmt(f.nf)}</td>
-              <td style={{fontSize:11,color:"var(--t2)"}}>{f.sn}</td>
-              <td><Bdg v={f.fs}/></td>
-              <td>{f.esc?<span style={{color:"var(--red)",fontWeight:700,fontSize:11}}>YES</span>:"—"}</td>
-              <td><span className="ia" onClick={()=>onEdit(i)}>✏️</span><span className="ia" onClick={()=>onDel(i)}>🗑️</span></td>
-            </tr>
-          ))}
-        </tbody>
-      </table></div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════ VENDOR MASTER ══════════════════════════════ */
-function VMaster({vends,orders,users}){
-  return(
-    <div>
-      <div className="sh"><span className="sh-t">Vendor Master</span><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{vends.length} vendors</span></div>
-      <div className="tw"><table>
-        <thead><tr><th>Vendor</th><th>Contact</th><th>Phone</th><th>Email</th><th>Avg Lead</th><th>Total</th><th>Done</th><th>VRI Score</th><th>Risk</th></tr></thead>
-        <tbody>
-          {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
-            const vO=orders.filter(o=>o.vendor===v.vendor);
-            const aL=vO.length?Math.round(vO.reduce((s,o)=>s+(o.lead||0),0)/vO.length):0;
-            return(<tr key={i}>
-              <td style={{fontWeight:600}}>{v.vendor}</td>
-              <td>{v.cp}</td>
-              <td className="tc">{v.ph||"—"}</td>
-              <td style={{color:"var(--ac2)",fontSize:11}}>{v.em||"—"}</td>
-              <td className="tc">{aL}d</td>
-              <td className="tc">{vO.length}</td>
-              <td className="tc">{vO.filter(o=>o.st==="COMPLETED").length}</td>
-              <td style={{minWidth:120}}><SBar score={v.score}/></td>
-              <td><Bdg v={v.risk}/></td>
-            </tr>);
-          })}
-        </tbody>
-      </table></div>
-      <div className="sh" style={{marginTop:8}}><span className="sh-t">Performance Cards</span></div>
-      <div className="vcards">
-        {[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
-          const vO=orders.filter(o=>o.vendor===v.vendor);
-          const qO=vO.reduce((s,o)=>s+o.qO,0),qR=vO.reduce((s,o)=>s+o.qR,0);
-          return(<div key={i} className="dc">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:9}}>
-              <span style={{fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,marginRight:8}}>{v.vendor}</span>
-              <Bdg v={v.risk}/>
+      {/* Exceptions panel */}
+      <div className="sh"><span className="sh-t">Operational Exceptions — Attention Required</span><button className="btn btn-g btn-sm" onClick={()=>setTab("exceptions")}>View All →</button></div>
+      <div className="tw">
+        {exceptions.slice(0,8).map((e,i)=>(
+          <div key={i} className="ex-item">
+            <div className={`ex-bar ex-bar-${e.sev}`}/>
+            <div style={{flex:1}}>
+              <div className="ex-type">{e.sev} · {e.type} {e.sku&&<span style={{fontFamily:"var(--mono)",color:"var(--ac2)",marginLeft:4}}>{e.sku}</span>}</div>
+              <div className="ex-desc">{e.desc}</div>
+              <div className="ex-action">→ {e.action}</div>
             </div>
-            <SBar score={v.score}/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginTop:9}}>
-              {[["Total Lines",vO.length],["On Time",vO.filter(o=>o.onT==="YES").length],["Fulfillment %",qO?Math.round(qR/qO*100)+"%":"0%"],["Pending",vO.filter(o=>o.st!=="COMPLETED").reduce((s,o)=>s+(o.pend||0),0)]].map(([l,val],j)=>(
-                <div key={j} style={{background:"var(--bg5)",borderRadius:6,padding:"6px 9px"}}>
-                  <div style={{fontSize:10,color:"var(--t3)",marginBottom:2}}>{l}</div>
-                  <div style={{fontFamily:"var(--mono)",fontSize:13,fontWeight:600}}>{val}</div>
-                </div>
-              ))}
+            <div className="ex-sev"><Bdg v={e.sev}/></div>
+          </div>
+        ))}
+        {exceptions.length===0&&<div className="empty">No exceptions at this time ✓</div>}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  EXCEPTIONS
+// ══════════════════════════════════════════════════════
+function Exceptions({exceptions}){
+  const [sev,setSev]=useState("");const [type,setType]=useState("");
+  const types=[...new Set(exceptions.map(e=>e.type))];
+  const filtered=exceptions.filter(e=>(!sev||e.sev===sev)&&(!type||e.type===type));
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Exception Management</span><span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--t3)"}}>{filtered.length} exceptions</span></div>
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={sev} onChange={e=>setSev(e.target.value)}><option value="">All Severity</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option></select>
+          <select className="filt" value={type} onChange={e=>setType(e.target.value)}><option value="">All Types</option>{types.map(t=><option key={t}>{t}</option>)}</select>
+          {(sev||type)&&<button className="btn btn-g btn-sm" onClick={()=>{setSev("");setType("");}}>Clear</button>}
+          <div className="tw-count">{filtered.length} items</div>
+        </div>
+        {filtered.map((e,i)=>(
+          <div key={i} className="ex-item">
+            <div className={`ex-bar ex-bar-${e.sev}`}/>
+            <div style={{flex:1}}>
+              <div className="ex-type">{e.sev} · {e.type} {e.cat&&<span className="b b-cat">{e.cat}</span>} {e.sku&&<span style={{fontFamily:"var(--mono)",color:"var(--ac2)",marginLeft:4,fontSize:11}}>{e.sku}</span>}</div>
+              <div className="ex-desc">{e.desc}</div>
+              <div className="ex-action">Recommended Action: {e.action}</div>
             </div>
-          </div>);
+            <div className="ex-sev"><Bdg v={e.sev}/></div>
+          </div>
+        ))}
+        {filtered.length===0&&<div className="empty">No exceptions match the filter</div>}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTORY OVERVIEW
+// ══════════════════════════════════════════════════════
+function Inventory({inv,locStock}){
+  const [cat,setCat]=useState("");const [status,setStatus]=useState("");const [q,setQ]=useState("");
+  const cats=[...new Set(inv.map(p=>p.cat))].sort();
+  const statuses=["OUT OF STOCK","CRITICAL","LOW STOCK","HEALTHY","OVERSTOCKED"];
+  const filtered=inv.filter(p=>(!cat||p.cat===cat)&&(!status||p.status===status)&&(!q||p.name.toLowerCase().includes(q.toLowerCase())||p.sku.toLowerCase().includes(q.toLowerCase())));
+
+  const catVal=useMemo(()=>{const m={};inv.forEach(p=>{m[p.cat]=(m[p.cat]||0)+p.value;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);});
+  const locVal=locStock.map(l=>l.value);
+
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Inventory Overview</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(filtered.map(p=>({SKU:p.sku,Product:p.name,Brand:p.brand,Category:p.cat,Supplier:p.supName,CurrentStock:p.qty,ReorderLevel:p.rl,TargetStock:p.tgt,DailyConsumption:p.dc,InvDays:p.invDays,Status:p.status,InvValue:p.value})),"Inventory")}>↓ CSV</button></div></div>
+
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Total SKUs",N(inv.length),"var(--ac2)","Active products"],["Total Units",N(inv.reduce((s,p)=>s+p.qty,0)),"var(--ac2)","Across all WH"],["Inv. Value",INR(inv.reduce((s,p)=>s+p.value,0)),"var(--ac)","At unit cost"],["Out of Stock",N(inv.filter(p=>p.status==="OUT OF STOCK").length),"var(--red)","Zero units"],["Low Stock",N(inv.filter(p=>p.status==="LOW STOCK").length),"var(--yel)","Below reorder"],["Overstocked",N(inv.filter(p=>p.status==="OVERSTOCKED").length),"var(--pur)","Above 1.8× target"]].map(([l,v,c,s],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.startsWith("₹")?17:24}}>{v}</div><div className="kcard-sub">{s}</div></div>
+        ))}
+      </div>
+
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt" value={cat} onChange={e=>setCat(e.target.value)}><option value="">All Categories</option>{cats.map(c=><option key={c}>{c}</option>)}</select>
+          <select className="filt filt-sm" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All Status</option>{statuses.map(s=><option key={s}>{s}</option>)}</select>
+          <input className="filt" placeholder="Search SKU / product…" value={q} onChange={e=>setQ(e.target.value)} style={{minWidth:200}}/>
+          {(cat||status||q)&&<button className="btn btn-g btn-sm" onClick={()=>{setCat("");setStatus("");setQ("");}}>Clear</button>}
+          <div className="tw-count">{filtered.length} SKUs</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th className="tr">Current Stock</th><th className="tr">Reorder Lvl</th><th className="tr">Target Stock</th><th className="tr">Daily Cons.</th><th className="tr">Inv. Days</th><th>Status</th><th className="tr">Value (₹)</th><th>Supplier</th></tr></thead>
+          <tbody>
+            {filtered.length===0?<tr><td colSpan={11}><div className="empty">No products match the filter</div></td></tr>:
+            filtered.map((p,i)=>(
+              <tr key={i}>
+                <td className="tc col-ac2">{p.sku}</td>
+                <td className="bold tnw">{p.name}</td>
+                <td><span className="b b-cat">{p.cat}</span></td>
+                <td className="tr tc">{N(p.qty)}</td>
+                <td className="tr tc">{N(p.rl)}</td>
+                <td className="tr tc">{N(p.tgt)}</td>
+                <td className="tr tc">{p.dc}</td>
+                <td className="tr tc" style={{color:p.invDays<=3?"var(--red)":p.invDays<=7?"var(--org)":p.invDays<=14?"var(--yel)":"var(--green)"}}>{DAYS(p.invDays)}</td>
+                <td><Bdg v={p.status}/></td>
+                <td className="tr bold">{INR(p.value)}</td>
+                <td className="col-t3" style={{fontSize:11}}>{p.supName}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+      </div>
+
+      <div className="charts-grid">
+        <div className="chart-box">
+          <div className="chart-title">Units by Category</div>
+          <CChart id="inv-cat" height={200} cfg={{type:"bar",data:{labels:catVal.map(c=>c[0]),datasets:[{label:"Value ₹",data:catVal.map(c=>c[1]),backgroundColor:CHART_COLORS,borderRadius:4}]},options:{...CHART_OPTS,plugins:{...CHART_OPTS.plugins,legend:{display:false}},scales:{x:{ticks:{color:"#4e5870",font:{size:10}}},y:{ticks:{color:"#4e5870",font:{size:10},callback:v=>"₹"+v.toLocaleString("en-IN")}}}}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">Stock Value by Location</div>
+          <CChart id="inv-loc" height={200} cfg={{type:"bar",data:{labels:locStock.map(l=>l.city),datasets:[{label:"Value ₹",data:locVal,backgroundColor:CHART_COLORS,borderRadius:4}]},options:{...CHART_OPTS,indexAxis:"y",plugins:{...CHART_OPTS.plugins,legend:{display:false}},scales:{x:{ticks:{color:"#4e5870",font:{size:10},callback:v=>"₹"+v.toLocaleString("en-IN")}},y:{ticks:{color:"#4e5870",font:{size:10}}}}}}}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  SKU MASTER
+// ══════════════════════════════════════════════════════
+function SKUMaster({inv}){
+  const [cat,setCat]=useState("");const [q,setQ]=useState("");
+  const cats=[...new Set(inv.map(p=>p.cat))].sort();
+  const filtered=inv.filter(p=>(!cat||p.cat===cat)&&(!q||p.name.toLowerCase().includes(q.toLowerCase())||p.sku.toLowerCase().includes(q.toLowerCase())));
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Product / SKU Master</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(filtered.map(p=>({SKU:p.sku,Product:p.name,Brand:p.brand,Category:p.cat,Subcategory:p.subcat,Unit:p.unit,UnitCost:p.cost,SafetyStock:p.ss,ReorderLevel:p.rl,TargetStock:p.tgt,DailyConsumption:p.dc,Supplier:p.supName})),"SKU_Master")}>↓ CSV</button></div></div>
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt" value={cat} onChange={e=>setCat(e.target.value)}><option value="">All Categories</option>{cats.map(c=><option key={c}>{c}</option>)}</select>
+          <input className="filt" placeholder="Search…" value={q} onChange={e=>setQ(e.target.value)} style={{minWidth:200}}/>
+          {(cat||q)&&<button className="btn btn-g btn-sm" onClick={()=>{setCat("");setQ("");}}>Clear</button>}
+          <div className="tw-count">{filtered.length} products</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>SKU</th><th>Product Name</th><th>Brand</th><th>Category</th><th>Sub-category</th><th>Unit</th><th className="tr">Unit Cost (₹)</th><th className="tr">Safety Stock</th><th className="tr">Reorder Level</th><th className="tr">Target Stock</th><th className="tr">Daily Cons.</th><th>Supplier</th></tr></thead>
+          <tbody>{filtered.map((p,i)=>(
+            <tr key={i}>
+              <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td><td>{p.brand}</td>
+              <td><span className="b b-cat">{p.cat}</span></td><td className="col-t3">{p.subcat}</td><td className="col-t3">{p.unit}</td>
+              <td className="tr bold">{INR(p.cost)}</td><td className="tr tc">{N(p.ss)}</td><td className="tr tc">{N(p.rl)}</td>
+              <td className="tr tc">{N(p.tgt)}</td><td className="tr tc">{p.dc}</td><td className="col-t3" style={{fontSize:11}}>{p.supName}</td>
+            </tr>
+          ))}</tbody>
+        </table></div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  STOCK MOVEMENTS
+// ══════════════════════════════════════════════════════
+function Movements({txns}){
+  const [type,setType]=useState("");const [q,setQ]=useState("");
+  const types=["SALE","RECEIPT","PURCHASE","RETURN","ADJUSTMENT","TRANSFER-IN","TRANSFER-OUT"];
+  const filtered=txns.filter(t=>(!type||t.type===type)&&(!q||t.sku.toLowerCase().includes(q.toLowerCase())||t.skuName.toLowerCase().includes(q.toLowerCase()))).slice(0,500);
+  const typeCls={"SALE":"b-oos","RECEIPT":"b-received","PURCHASE":"b-received","RETURN":"b-review","ADJUSTMENT":"b-average","TRANSFER-IN":"b-pending","TRANSFER-OUT":"b-pending"};
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Stock Movements</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(filtered.map(t=>({TxnID:t.id,Date:t.date,SKU:t.sku,Product:t.skuName,Location:t.locName,Type:t.type,Qty:t.qty,Reference:t.ref,Supplier:t.supName,Remarks:t.rem})),"Transactions")}>↓ CSV</button></div></div>
+      <div className="info-bar">ℹ Showing latest 500 transactions out of {txns.length.toLocaleString("en-IN")} total. Filter to narrow results.</div>
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={type} onChange={e=>setType(e.target.value)}><option value="">All Types</option>{types.map(t=><option key={t}>{t}</option>)}</select>
+          <input className="filt" placeholder="Search SKU / product…" value={q} onChange={e=>setQ(e.target.value)} style={{minWidth:200}}/>
+          {(type||q)&&<button className="btn btn-g btn-sm" onClick={()=>{setType("");setQ("");}}>Clear</button>}
+          <div className="tw-count">{filtered.length} shown</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>Txn ID</th><th>Date</th><th>SKU</th><th>Product</th><th>Location</th><th>Type</th><th className="tr">Qty</th><th>Reference</th><th>Supplier</th><th>Remarks</th></tr></thead>
+          <tbody>{filtered.length===0?<tr><td colSpan={10}><div className="empty">No transactions</div></td></tr>:
+            filtered.map((t,i)=>(
+              <tr key={i}>
+                <td className="tc col-t3" style={{fontSize:10.5}}>{t.id}</td>
+                <td className="tc">{t.date}</td>
+                <td className="tc col-ac2">{t.sku}</td>
+                <td style={{maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.skuName}</td>
+                <td className="col-t3" style={{fontSize:11}}>{t.locName}</td>
+                <td><span className={`b ${typeCls[t.type]||"b-low"}`}>{t.type}</span></td>
+                <td className="tr bold tc" style={{color:t.qty<0?"var(--red)":"var(--green)"}}>{t.qty>0?"+":""}{N(t.qty)}</td>
+                <td className="tc col-t3" style={{fontSize:11}}>{t.ref||"—"}</td>
+                <td className="col-t3" style={{fontSize:11,maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.supName||"—"}</td>
+                <td className="col-t3" style={{fontSize:11}}>{t.rem||"—"}</td>
+              </tr>
+            ))
+          }</tbody>
+        </table></div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  PURCHASE ORDERS
+// ══════════════════════════════════════════════════════
+function PurchaseOrders({pos}){
+  const [status,setStatus]=useState("");const [sup,setSup]=useState("");const [q,setQ]=useState("");
+  const sups=[...new Set(pos.map(p=>p.supName))].sort();
+  const statuses=["PENDING","RECEIVED","PARTIALLY RECEIVED","DELAYED","CANCELLED"];
+  const filtered=pos.filter(p=>(!status||p.status===status)&&(!sup||p.supName===sup)&&(!q||p.po.toLowerCase().includes(q.toLowerCase())||p.skuName.toLowerCase().includes(q.toLowerCase())));
+
+  const kpis={total:pos.length,received:pos.filter(p=>p.status==="RECEIVED").length,delayed:pos.filter(p=>p.status==="DELAYED").length,pending:pos.filter(p=>p.status==="PENDING").length,avgFR:+(pos.reduce((s,p)=>s+(p.fillRate||0),0)/pos.length).toFixed(1)};
+
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Purchase Orders</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(filtered.map(p=>({PO:p.po,Date:p.date,Supplier:p.supName,SKU:p.sku,Product:p.skuName,Ordered:p.ordered,Received:p.received,Pending:p.pending,ExpectedDelivery:p.expDel,ActualDelivery:p.actDel||"",DelayDays:p.delay,FillRate:p.fillRate,Status:p.status})),"PurchaseOrders")}>↓ CSV</button></div></div>
+
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Total POs",N(kpis.total),"var(--ac2)"],["Received",N(kpis.received),"var(--green)"],["Delayed",N(kpis.delayed),"var(--red)"],["Pending",N(kpis.pending),"var(--yel)"],["Avg Fill Rate",PCT(kpis.avgFR),"var(--ac)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.includes("%")?20:24}}>{v}</div></div>
+        ))}
+      </div>
+
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All Status</option>{statuses.map(s=><option key={s}>{s}</option>)}</select>
+          <select className="filt" value={sup} onChange={e=>setSup(e.target.value)}><option value="">All Suppliers</option>{sups.map(s=><option key={s}>{s}</option>)}</select>
+          <input className="filt" placeholder="Search PO / product…" value={q} onChange={e=>setQ(e.target.value)} style={{minWidth:180}}/>
+          {(status||sup||q)&&<button className="btn btn-g btn-sm" onClick={()=>{setStatus("");setSup("");setQ("");}}>Clear</button>}
+          <div className="tw-count">{filtered.length} POs</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>PO Number</th><th>Date</th><th>Supplier</th><th>SKU</th><th>Product</th><th className="tr">Ordered</th><th className="tr">Received</th><th className="tr">Pending</th><th>Expected</th><th>Actual</th><th className="tr">Delay (d)</th><th className="tr">Fill %</th><th>Status</th></tr></thead>
+          <tbody>{filtered.length===0?<tr><td colSpan={13}><div className="empty">No POs match the filter</div></td></tr>:
+            filtered.map((p,i)=>(
+              <tr key={i}>
+                <td className="tc col-ac2">{p.po}</td>
+                <td className="tc">{p.date}</td>
+                <td style={{maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:11}}>{p.supName}</td>
+                <td className="tc col-ac">{p.sku}</td>
+                <td style={{maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.skuName}</td>
+                <td className="tr tc">{N(p.ordered)}</td>
+                <td className="tr tc">{N(p.received)}</td>
+                <td className="tr tc" style={{color:p.pending>0?"var(--yel)":"var(--t3)"}}>{N(p.pending)}</td>
+                <td className="tc">{p.expDel}</td>
+                <td className="tc">{p.actDel||"—"}</td>
+                <td className="tr tc" style={{color:p.delay>0?"var(--red)":"var(--t3)"}}>{p.delay>0?"+"+p.delay:"—"}</td>
+                <td className="tr tc">{PCT(p.fillRate)}</td>
+                <td><Bdg v={p.status}/></td>
+              </tr>
+            ))
+          }</tbody>
+        </table></div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  SUPPLIERS
+// ══════════════════════════════════════════════════════
+function Suppliers({supPerf,pos}){
+  const avg=f=>supPerf.length?+(supPerf.reduce((s,r)=>s+(r[f]||0),0)/supPerf.length).toFixed(1):0;
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Supplier Performance</span></div>
+      <div className="kgrid" style={{marginBottom:16}}>
+        {[["Suppliers Evaluated",N(supPerf.length),"var(--ac2)"],["Avg On-Time %",PCT(avg("onTimePct")),"var(--ac)"],["Avg Fill Rate",PCT(avg("fillRate")),"var(--green)"],["Poor Performers",N(supPerf.filter(s=>s.rating==="POOR").length),"var(--red)"],["Delayed POs",N(supPerf.reduce((s,r)=>s+(r.delayed||0),0)),"var(--org)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.length>6?17:24}}>{v}</div></div>
+        ))}
+      </div>
+
+      <div className="sup-grid">
+        {supPerf.map((s,i)=>{
+          const otp=s.onTimePct||0;const fr=s.fillRate||0;
+          const otpC=otp>=90?"#22c55e":otp>=75?"#f5c518":"#f04438";
+          const frC=fr>=90?"#22c55e":fr>=75?"#10e8b8":"#f5c518";
+          return(
+            <div key={i} className="sup-card">
+              <div className="sup-name">{s.name}</div>
+              <div className="sup-city">📍 {s.city} &nbsp;·&nbsp; <Bdg v={s.rating}/></div>
+              <div className="sup-row"><span className="sup-lbl">On-Time Delivery</span><span className="sup-val" style={{color:otpC}}>{PCT(otp)}</span></div>
+              <div className="prog-wrap"><div className="prog-fill" style={{width:Math.min(100,otp)+"%",background:otpC}}/></div>
+              <div className="sup-row"><span className="sup-lbl">Fill Rate</span><span className="sup-val" style={{color:frC}}>{PCT(fr)}</span></div>
+              <div className="prog-wrap"><div className="prog-fill" style={{width:Math.min(100,fr)+"%",background:frC}}/></div>
+              <div className="sup-row"><span className="sup-lbl">Total POs</span><span className="sup-val">{N(s.total)}</span></div>
+              <div className="sup-row"><span className="sup-lbl">Delayed</span><span className="sup-val" style={{color:(s.delayed||0)>0?"var(--red)":"var(--t2)"}}>{s.delayed||0}</span></div>
+              <div className="sup-row"><span className="sup-lbl">Avg Lead Time</span><span className="sup-val">{s.avgLead} days</span></div>
+              <div className="sup-row"><span className="sup-lbl">Performance Score</span><div style={{flex:1,marginLeft:10}}><SBar score={s.score}/></div></div>
+            </div>
+          );
         })}
       </div>
+
+      <div className="sh"><span className="sh-t">Supplier Scorecard Table</span></div>
+      <div className="tw"><div className="tw-scroll"><table>
+        <thead><tr><th>#</th><th>Supplier</th><th>City</th><th className="tr">Total POs</th><th className="tr">Received</th><th className="tr">Delayed</th><th className="tr">On-Time %</th><th className="tr">Fill Rate %</th><th className="tr">Avg Lead (d)</th><th>Score</th><th>Rating</th></tr></thead>
+        <tbody>{[...supPerf].sort((a,b)=>b.score-a.score).map((s,i)=>(
+          <tr key={i}>
+            <td className="tc col-t3">{i+1}</td><td className="bold">{s.name}</td><td className="col-t3">{s.city}</td>
+            <td className="tr tc">{N(s.total)}</td><td className="tr tc col-grn">{N(s.received)}</td>
+            <td className="tr tc" style={{color:(s.delayed||0)>0?"var(--red)":"var(--t3)"}}>{N(s.delayed||0)}</td>
+            <td className="tr tc">{PCT(s.onTimePct)}</td><td className="tr tc">{PCT(s.fillRate)}</td>
+            <td className="tr tc">{s.avgLead}</td>
+            <td style={{minWidth:110}}><SBar score={s.score}/></td>
+            <td><Bdg v={s.rating}/></td>
+          </tr>
+        ))}</tbody>
+      </table></div></div>
     </div>
   );
 }
 
-/* ═══════════════════════════════ REPORTS ════════════════════════════════════ */
-function Reports({orders,fups,vends,inc,isA}){
-  const del=orders.filter(o=>o.st==="DELAYED").sort((a,b)=>(b.del||0)-(a.del||0));
-  const ov=fups.filter(f=>f.fs==="OVERDUE");
-  const ds=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+// ══════════════════════════════════════════════════════
+//  REPLENISHMENT
+// ══════════════════════════════════════════════════════
+function Replenishment({inv}){
+  const [urgency,setUrgency]=useState("");const [cat,setCat]=useState("");
+  const cats=[...new Set(inv.map(p=>p.cat))].sort();
+  const needs=inv.filter(p=>p.urgency!=="ADEQUATE");
+  const filtered=needs.filter(p=>(!urgency||p.urgency===urgency)&&(!cat||p.cat===cat));
+  const urgOrder={"URGENT":0,"REPLENISH NOW":1,"REVIEW":2};
+  const sorted=[...filtered].sort((a,b)=>(urgOrder[a.urgency]||3)-(urgOrder[b.urgency]||3)||a.invDays-b.invDays);
+  const totalReplVal=sorted.reduce((s,p)=>s+p.replQty*p.cost,0);
   return(
     <div>
-      <div className="sh"><span className="sh-t">{isA?"Reports":"My Reports"}</span></div>
-      <div className="rs">
-        <div className="rs-t">📦 INCOMING MATERIAL REPORT — {ds}</div>
-        <div className="tw"><table>
-          <thead><tr><th>Vendor</th><th>Item</th><th>PO ID</th><th>Pending Qty</th><th>ETA</th><th>Status</th><th>Delay Days</th></tr></thead>
-          <tbody>{inc.length===0?<tr><td colSpan={7}><div className="empty">Nothing incoming</div></td></tr>:
-            inc.map((o,i)=>(<tr key={i}>
-              <td style={{color:"var(--t2)"}}>{o.vendor}</td><td>{o.item}</td>
-              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
-              <td className="tc" style={{color:"var(--yel)"}}>{o.pend}</td>
-              <td className="tc">{fmt(o.lc)}</td><td><Bdg v={o.st}/></td>
-              <td className="tc" style={{color:o.del>0?"var(--red)":"var(--t3)"}}>{o.del}</td>
-            </tr>))}</tbody>
-        </table></div>
+      <div className="sh"><span className="sh-t">Replenishment Analysis</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(sorted.map(p=>({SKU:p.sku,Product:p.name,Category:p.cat,CurrentStock:p.qty,DailyConsumption:p.dc,InvDays:p.invDays,ReorderLevel:p.rl,TargetStock:p.tgt,RecommendedQty:p.replQty,Urgency:p.urgency,Supplier:p.supName})),"Replenishment")}>↓ CSV</button></div></div>
+      <div className="info-bar">
+        ℹ <strong>Replenishment Formula:</strong> Recommended Qty = Target Stock − Current Stock. Urgency: URGENT (≤3 days), REPLENISH NOW (≤7 days), REVIEW (≤14 days or below reorder). Estimated replenishment value: <strong>{INR(totalReplVal)}</strong>
       </div>
-      <div className="rs">
-        <div className="rs-t">⚠️ DELAY REPORT</div>
-        <div className="tw"><table>
-          <thead><tr><th>PO ID</th><th>Item</th>{isA&&<th>Vendor</th>}<th>Committed</th><th>Delay Days</th><th>Pending</th><th>Priority</th><th>Risk</th></tr></thead>
-          <tbody>{del.length===0?<tr><td colSpan={8}><div className="empty">No delays 🎉</div></td></tr>:
-            del.map((o,i)=>(<tr key={i}>
-              <td className="tc" style={{color:"var(--ac2)"}}>{o.poId}</td>
-              <td style={{maxWidth:120,overflow:"hidden",textOverflow:"ellipsis"}}>{o.item}</td>
-              {isA&&<td style={{color:"var(--t2)"}}>{o.vendor}</td>}
-              <td className="tc">{fmt(o.lc)}</td>
-              <td className="tc" style={{color:"var(--red)",fontWeight:700}}>{o.del}</td>
-              <td className="tc">{o.pend}</td><td><Bdg v={o.pri}/></td><td><Bdg v={o.risk}/></td>
-            </tr>))}</tbody>
-        </table></div>
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Urgent",N(needs.filter(p=>p.urgency==="URGENT").length),"var(--red)"],["Replenish Now",N(needs.filter(p=>p.urgency==="REPLENISH NOW").length),"var(--org)"],["Review",N(needs.filter(p=>p.urgency==="REVIEW").length),"var(--yel)"],["Repl. Value",INR(totalReplVal),"var(--ac)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.startsWith("₹")?16:24}}>{v}</div></div>
+        ))}
       </div>
-      {isA&&<div className="rs">
-        <div className="rs-t">📊 VENDOR RELIABILITY REPORT</div>
-        <div className="tw"><table>
-          <thead><tr><th>#</th><th>Vendor</th><th>VRI Score</th><th>Risk</th><th>On-Time%</th><th>Fulfillment%</th><th>Avg Delay</th><th>Avg Rev</th></tr></thead>
-          <tbody>{[...vends].sort((a,b)=>b.score-a.score).map((v,i)=>{
-            const vO=orders.filter(o=>o.vendor===v.vendor);
-            const t=vO.length;
-            const onT=t?Math.round(vO.filter(o=>o.onT==="YES").length/t*100):0;
-            const qO=vO.reduce((s,o)=>s+o.qO,0),qR=vO.reduce((s,o)=>s+o.qR,0);
-            const fill=qO?Math.round(qR/qO*100):0;
-            const aD=t?Math.round(vO.reduce((s,o)=>s+(o.del||0),0)/t*10)/10:0;
-            const aR=t?Math.round(vO.reduce((s,o)=>s+(o.rev||0),0)/t*10)/10:0;
-            return(<tr key={i}>
-              <td className="tc" style={{color:"var(--t3)"}}>{i+1}</td>
-              <td style={{fontWeight:500}}>{v.vendor}</td>
-              <td style={{minWidth:110}}><SBar score={v.score}/></td>
-              <td><Bdg v={v.risk}/></td>
-              <td className="tc">{onT}%</td><td className="tc">{fill}%</td>
-              <td className="tc" style={{color:aD>5?"var(--red)":aD>2?"var(--yel)":"var(--green)"}}>{aD}d</td>
-              <td className="tc">{aR}</td>
-            </tr>);
-          })}</tbody>
-        </table></div>
-      </div>}
-      {isA&&<div className="rs">
-        <div className="rs-t">📞 OVERDUE FOLLOW-UPS</div>
-        {ov.length===0?<div className="empty">No overdue follow-ups ✓</div>:<div className="tw"><table>
-          <thead><tr><th>Date</th><th>Vendor</th><th>PO ID</th><th>Discussion</th><th>New Commitment</th><th>Status Note</th></tr></thead>
-          <tbody>{ov.map((f,i)=>(<tr key={i}>
-            <td className="tc">{fmt(f.date)}</td>
-            <td style={{color:"var(--red)"}}>{f.vendor}</td>
-            <td className="tc" style={{color:"var(--ac2)"}}>{f.poId||"—"}</td>
-            <td style={{color:"var(--t2)"}}>{f.disc}</td>
-            <td className="tc">{fmt(f.nc)}</td>
-            <td style={{color:"var(--yel)"}}>{f.sn}</td>
-          </tr>))}</tbody>
-        </table></div>}
-      </div>}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════ MODALS ══════════════════════════════════════ */
-function OModal({initial,vNames,onSave,onClose}){
-  const bl={poId:"",lineId:1,item:"",cat:"HANDLES",vendor:"",od:TODAY,qO:0,qR:0,exp:"",lc:"",ad:"",pri:"MEDIUM",rev:0};
-  const [form,setForm]=useState(initial?{poId:initial.poId,lineId:initial.lineId,item:initial.item,cat:initial.cat||"HANDLES",vendor:initial.vendor,od:initial.od||TODAY,qO:initial.qO||0,qR:initial.qR||0,exp:initial.exp||"",lc:initial.lc||"",ad:initial.ad||"",pri:initial.pri||"MEDIUM",rev:initial.rev||0}:bl);
-  const s=(k,v)=>setForm(f=>({...f,[k]:v}));
-  return(
-    <div className="mo" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="md">
-        <div className="md-t">{initial?"Edit PO Line":"Add New PO Line"}</div>
-        <div className="fg">
-          {[["poId","PO ID","text"],["lineId","Line ID","number"],["item","Item Name","text"],["od","Order Date","date"],["qO","Qty Ordered","number"],["qR","Qty Received","number"],["exp","Expected Date","date"],["lc","Last Committed","date"],["ad","Actual Delivery","date"],["rev","Revisions","number"]].map(([k,l,t])=>(
-            <div key={k} className="fl"><label>{l}</label><input className="fi" type={t} value={form[k]||""} onChange={e=>s(k,t==="number"?Number(e.target.value):e.target.value)}/></div>
-          ))}
-          <div className="fl"><label>Category</label><select className="fi" value={form.cat} onChange={e=>s("cat",e.target.value)}>{["HANDLES","PACKAGING","LABEL","COMPONENT","RUNNER SET"].map(o=><option key={o}>{o}</option>)}</select></div>
-          <div className="fl"><label>Vendor</label><select className="fi" value={form.vendor} onChange={e=>s("vendor",e.target.value)}><option value="">Select…</option>{vNames.map(v=><option key={v}>{v}</option>)}</select></div>
-          <div className="fl"><label>Priority</label><select className="fi" value={form.pri} onChange={e=>s("pri",e.target.value)}>{["HIGH","MEDIUM","LOW"].map(o=><option key={o}>{o}</option>)}</select></div>
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={urgency} onChange={e=>setUrgency(e.target.value)}><option value="">All Urgency</option><option>URGENT</option><option>REPLENISH NOW</option><option>REVIEW</option></select>
+          <select className="filt" value={cat} onChange={e=>setCat(e.target.value)}><option value="">All Categories</option>{cats.map(c=><option key={c}>{c}</option>)}</select>
+          {(urgency||cat)&&<button className="btn btn-g btn-sm" onClick={()=>{setUrgency("");setCat("");}}>Clear</button>}
+          <div className="tw-count">{sorted.length} SKUs</div>
         </div>
-        <div className="md-f"><button className="btn btn-g" onClick={onClose}>Cancel</button><button className="btn btn-p" onClick={()=>onSave(form)}>Save</button></div>
-      </div>
-    </div>
-  );
-}
-function FModal({initial,vNames,onSave,onClose}){
-  const bl={date:TODAY,vendor:"",poId:"",li:"",mode:"CALL",disc:"",nc:"",pc:"",nf:"",sn:"IN PRODUCTION"};
-  const [form,setForm]=useState(initial?{date:initial.date||TODAY,vendor:initial.vendor||"",poId:initial.poId||"",li:initial.li||"",mode:initial.mode||"CALL",disc:initial.disc||"",nc:initial.nc||"",pc:initial.pc||"",nf:initial.nf||"",sn:initial.sn||"IN PRODUCTION"}:bl);
-  const s=(k,v)=>setForm(f=>({...f,[k]:v}));
-  return(
-    <div className="mo" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="md">
-        <div className="md-t">{initial?"Edit Follow-Up":"Log New Follow-Up"}</div>
-        <div className="fg">
-          <div className="fl"><label>Date</label><input className="fi" type="date" value={form.date} onChange={e=>s("date",e.target.value)}/></div>
-          <div className="fl"><label>Vendor</label><select className="fi" value={form.vendor} onChange={e=>s("vendor",e.target.value)}><option value="">Select…</option>{vNames.map(v=><option key={v}>{v}</option>)}</select></div>
-          <div className="fl"><label>PO ID</label><input className="fi" value={form.poId} onChange={e=>s("poId",e.target.value)}/></div>
-          <div className="fl"><label>Line ID</label><input className="fi" value={form.li} onChange={e=>s("li",e.target.value)}/></div>
-          <div className="fl"><label>Mode</label><select className="fi" value={form.mode} onChange={e=>s("mode",e.target.value)}>{["CALL","WHATSAPP","MAIL","MEETING"].map(m=><option key={m}>{m}</option>)}</select></div>
-          <div className="fl" style={{gridColumn:"span 2"}}><label>Discussion</label><input className="fi" value={form.disc} onChange={e=>s("disc",e.target.value)}/></div>
-          <div className="fl"><label>New Commitment Date</label><input className="fi" type="date" value={form.nc} onChange={e=>s("nc",e.target.value)}/></div>
-          <div className="fl"><label>Prev Commitment Date</label><input className="fi" type="date" value={form.pc} onChange={e=>s("pc",e.target.value)}/></div>
-          <div className="fl"><label>Next Follow-Up Date</label><input className="fi" type="date" value={form.nf} onChange={e=>s("nf",e.target.value)}/></div>
-          <div className="fl"><label>Status Note</label><select className="fi" value={form.sn} onChange={e=>s("sn",e.target.value)}>{["IN PRODUCTION","DISPATCH IN 3 DAYS","DISPATCHED","WAITING MATERIAL","NO RESPONSE","COMMITMENT MISSED","CONFIRMED","UNCERTAIN"].map(s=><option key={s}>{s}</option>)}</select></div>
-        </div>
-        <div className="md-f"><button className="btn btn-g" onClick={onClose}>Cancel</button><button className="btn btn-p" onClick={()=>onSave(form)}>Save</button></div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th className="tr">Current Stock</th><th className="tr">Daily Cons.</th><th className="tr">Inv. Days</th><th className="tr">Reorder Lvl</th><th className="tr">Target Stock</th><th className="tr">Recommended Qty</th><th>Urgency</th><th>Supplier</th></tr></thead>
+          <tbody>{sorted.length===0?<tr><td colSpan={11}><div className="empty">No replenishment needed ✓</div></td></tr>:
+            sorted.map((p,i)=>(
+              <tr key={i}>
+                <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td>
+                <td><span className="b b-cat">{p.cat}</span></td>
+                <td className="tr tc" style={{color:p.qty<p.rl?"var(--red)":"inherit"}}>{N(p.qty)}</td>
+                <td className="tr tc">{p.dc}</td>
+                <td className="tr tc" style={{color:p.invDays<=3?"var(--red)":p.invDays<=7?"var(--org)":"var(--yel)"}}>{DAYS(p.invDays)}</td>
+                <td className="tr tc">{N(p.rl)}</td><td className="tr tc">{N(p.tgt)}</td>
+                <td className="tr bold tc col-ac">{N(p.replQty)}</td>
+                <td><Bdg v={p.urgency}/></td>
+                <td className="col-t3" style={{fontSize:11}}>{p.supName}</td>
+              </tr>
+            ))
+          }</tbody>
+        </table></div>
       </div>
     </div>
   );
 }
 
+// ══════════════════════════════════════════════════════
+//  STOCKOUT RISK
+// ══════════════════════════════════════════════════════
+function StockoutRisk({inv}){
+  const [risk,setRisk]=useState("");
+  const risky=inv.map(p=>{
+    const r=p.qty===0?"CRITICAL":p.invDays<=3?"CRITICAL":p.invDays<=7?"HIGH":p.invDays<=14?"MEDIUM":"NORMAL";
+    return {...p,risk:r};
+  }).filter(p=>p.risk!=="NORMAL");
+  const filtered=risky.filter(p=>!risk||p.risk===risk);
+  const rOrder={"CRITICAL":0,"HIGH":1,"MEDIUM":2};
+  const sorted=[...filtered].sort((a,b)=>(rOrder[a.risk]||3)-(rOrder[b.risk]||3)||a.invDays-b.invDays);
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Stockout Risk Analysis</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(sorted.map(p=>({SKU:p.sku,Product:p.name,Category:p.cat,CurrentStock:p.qty,DailyConsumption:p.dc,InvDays:p.invDays,RiskLevel:p.risk,RecommendedQty:p.replQty,Urgency:p.urgency})),"StockoutRisk")}>↓ CSV</button></div></div>
+      <div className="info-bar">ℹ Risk thresholds: <strong>CRITICAL</strong> ≤ 3 days &nbsp;|&nbsp; <strong>HIGH</strong> ≤ 7 days &nbsp;|&nbsp; <strong>MEDIUM</strong> ≤ 14 days. All SKUs with NORMAL risk are excluded from this view.</div>
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Critical",N(risky.filter(p=>p.risk==="CRITICAL").length),"var(--red)","≤ 3 days inventory"],["High Risk",N(risky.filter(p=>p.risk==="HIGH").length),"var(--org)","≤ 7 days"],["Medium Risk",N(risky.filter(p=>p.risk==="MEDIUM").length),"var(--yel)","≤ 14 days"]].map(([l,v,c,s],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val">{v}</div><div className="kcard-sub">{s}</div></div>
+        ))}
+      </div>
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={risk} onChange={e=>setRisk(e.target.value)}><option value="">All Risk Levels</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option></select>
+          {risk&&<button className="btn btn-g btn-sm" onClick={()=>setRisk("")}>Clear</button>}
+          <div className="tw-count">{sorted.length} SKUs at risk</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th className="tr">Current Stock</th><th className="tr">Daily Cons.</th><th className="tr">Inv. Days</th><th>Risk Level</th><th className="tr">Rec. Order Qty</th><th>Urgency</th></tr></thead>
+          <tbody>{sorted.length===0?<tr><td colSpan={9}><div className="empty">No stockout risk detected ✓</div></td></tr>:
+            sorted.map((p,i)=>(
+              <tr key={i}>
+                <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td>
+                <td><span className="b b-cat">{p.cat}</span></td>
+                <td className="tr tc">{N(p.qty)}</td><td className="tr tc">{p.dc}</td>
+                <td className="tr bold tc" style={{color:p.invDays<=3?"var(--red)":p.invDays<=7?"var(--org)":"var(--yel)"}}>{DAYS(p.invDays)}</td>
+                <td><Bdg v={p.risk} cls={p.risk==="CRITICAL"?"b-critical":p.risk==="HIGH"?"b-oos":"b-review"}/></td>
+                <td className="tr bold tc col-ac">{N(p.replQty)}</td>
+                <td><Bdg v={p.urgency}/></td>
+              </tr>
+            ))
+          }</tbody>
+        </table></div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  SLOW MOVING
+// ══════════════════════════════════════════════════════
+function SlowMoving({slow}){
+  const totalVal=slow.reduce((s,p)=>s+p.value,0);
+  const smCls={"DEAD STOCK":"b-dead","VERY SLOW":"b-vslow","SLOW MOVING":"b-slow"};
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Slow-Moving & Dead Stock</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(slow.map(p=>({SKU:p.sku,Product:p.name,Category:p.cat,CurrentStock:p.qty,UnitCost:p.cost,InvValue:p.value,LastMovement:p.lastMoved,DaysSinceMovement:p.daysSince,Status:p.smStatus})),"SlowMoving")}>↓ CSV</button></div></div>
+      <div className="info-bar">ℹ Products with no outward movement (SALE / TRANSFER-OUT) for ≥ 30 days. Total slow-moving inventory value: <strong>{INR(totalVal)}</strong></div>
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Dead Stock",N(slow.filter(p=>p.smStatus==="DEAD STOCK").length),"var(--red)","≥ 60 days idle"],["Very Slow",N(slow.filter(p=>p.smStatus==="VERY SLOW").length),"var(--org)","45–59 days"],["Slow Moving",N(slow.filter(p=>p.smStatus==="SLOW MOVING").length),"var(--yel)","30–44 days"],["Total Value",INR(totalVal),"var(--pur)","Locked capital"]].map(([l,v,c,s],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.startsWith("₹")?16:24}}>{v}</div><div className="kcard-sub">{s}</div></div>
+        ))}
+      </div>
+      <div className="tw"><div className="tw-scroll"><table>
+        <thead><tr><th>SKU</th><th>Product</th><th>Brand</th><th>Category</th><th className="tr">Current Stock</th><th className="tr">Unit Cost</th><th className="tr">Inv. Value (₹)</th><th>Last Movement</th><th className="tr">Days Idle</th><th>Status</th></tr></thead>
+        <tbody>{slow.length===0?<tr><td colSpan={10}><div className="empty">No slow-moving inventory ✓</div></td></tr>:
+          slow.map((p,i)=>(
+            <tr key={i}>
+              <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td><td className="col-t3">{p.brand}</td>
+              <td><span className="b b-cat">{p.cat}</span></td>
+              <td className="tr tc">{N(p.qty)}</td><td className="tr tc">{INR(p.cost)}</td>
+              <td className="tr bold">{INR(p.value)}</td>
+              <td className="tc">{p.lastMoved}</td>
+              <td className="tr bold tc" style={{color:p.daysSince>=60?"var(--red)":p.daysSince>=45?"var(--org)":"var(--yel)"}}>{p.daysSince}</td>
+              <td><Bdg v={p.smStatus} cls={smCls[p.smStatus]}/></td>
+            </tr>
+          ))
+        }</tbody>
+      </table></div></div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  OVERSTOCK
+// ══════════════════════════════════════════════════════
+function Overstock({inv}){
+  const over=inv.filter(p=>p.status==="OVERSTOCKED").map(p=>({...p,excessUnits:p.qty-p.tgt,excessVal:(p.qty-p.tgt)*p.cost,ovPct:+((p.qty/p.tgt-1)*100).toFixed(1)})).sort((a,b)=>b.excessVal-a.excessVal);
+  const totalExcess=over.reduce((s,p)=>s+p.excessVal,0);
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Excess Inventory Analysis</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(over.map(p=>({SKU:p.sku,Product:p.name,Category:p.cat,CurrentStock:p.qty,TargetStock:p.tgt,ExcessUnits:p.excessUnits,OverstockPct:p.ovPct,UnitCost:p.cost,ExcessValue:p.excessVal})),"Overstock")}>↓ CSV</button></div></div>
+      <div className="info-bar">ℹ Products where current stock exceeds target stock by more than 80%. Total excess capital: <strong>{INR(totalExcess)}</strong></div>
+      <div className="kgrid" style={{marginBottom:14}}>
+        {[["Overstocked SKUs",N(over.length),"var(--pur)"],["Total Excess Value",INR(totalExcess),"var(--org)"],["Avg Overstock %",PCT(over.reduce((s,p)=>s+p.ovPct,0)/Math.max(1,over.length)),"var(--yel)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.startsWith("₹")?16:24}}>{v}</div></div>
+        ))}
+      </div>
+      <div className="tw"><div className="tw-scroll"><table>
+        <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th className="tr">Current Stock</th><th className="tr">Target Stock</th><th className="tr">Excess Units</th><th className="tr">Overstock %</th><th className="tr">Unit Cost</th><th className="tr">Excess Value (₹)</th><th>Supplier</th></tr></thead>
+        <tbody>{over.map((p,i)=>(
+          <tr key={i}>
+            <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td>
+            <td><span className="b b-cat">{p.cat}</span></td>
+            <td className="tr tc">{N(p.qty)}</td><td className="tr tc">{N(p.tgt)}</td>
+            <td className="tr bold col-org tc">{N(p.excessUnits)}</td>
+            <td className="tr tc col-red">{p.ovPct}%</td>
+            <td className="tr tc">{INR(p.cost)}</td>
+            <td className="tr bold col-pur">{INR(p.excessVal)}</td>
+            <td className="col-t3" style={{fontSize:11}}>{p.supName}</td>
+          </tr>
+        ))}</tbody>
+      </table></div></div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  ABC ANALYSIS
+// ══════════════════════════════════════════════════════
+function ABCAnalysis({abc}){
+  const [cls,setCls]=useState("");
+  const filtered=abc.filter(p=>!cls||p.abc===cls);
+  const a=abc.filter(x=>x.abc==="A"),b=abc.filter(x=>x.abc==="B"),c=abc.filter(x=>x.abc==="C");
+  const tV=abc.reduce((s,r)=>s+r.consVal,0);
+  const aV=a.reduce((s,r)=>s+r.consVal,0),bV=b.reduce((s,r)=>s+r.consVal,0),cV=c.reduce((s,r)=>s+r.consVal,0);
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">ABC Inventory Classification</span><div className="sh-r"><button className="btn btn-g btn-sm" onClick={()=>exportCSV(abc.map(p=>({SKU:p.sku,Product:p.name,Brand:p.brand,Category:p.cat,UnitCost:p.cost,ConsumedUnits:p.consumed,ConsumptionValue:p.consVal,CumulativePct:p.cumPct,ABCClass:p.abc})),"ABC_Analysis")}>↓ CSV</button></div></div>
+      <div className="info-bar">ℹ Based on 6-month consumption value (Daily Consumption × 180 days × Unit Cost). Class A: top 70% of value, Class B: next 20%, Class C: remaining 10%.</div>
+
+      <div className="tw" style={{marginBottom:16,padding:16}}>
+        <div style={{marginBottom:8,fontSize:11,color:"var(--t3)"}}>Value distribution by ABC Class</div>
+        <div className="abc-bar">
+          <div className="abc-seg" style={{flex:a.length,background:"#10e8b8",color:"#000"}}>{a.length} A ({Math.round(aV/tV*100)}%)</div>
+          <div className="abc-seg" style={{flex:b.length,background:"#a855f7",color:"#fff"}}>{b.length} B ({Math.round(bV/tV*100)}%)</div>
+          <div className="abc-seg" style={{flex:c.length,background:"#22c55e",color:"#000"}}>{c.length} C ({Math.round(cV/tV*100)}%)</div>
+        </div>
+        <div style={{display:"flex",gap:20,fontSize:11,color:"var(--t3)"}}>
+          <span><span style={{color:"var(--ac)"}}>■</span> A: {a.length} SKUs · {INR(aV)}</span>
+          <span><span style={{color:"var(--pur)"}}>■</span> B: {b.length} SKUs · {INR(bV)}</span>
+          <span><span style={{color:"var(--green)"}}>■</span> C: {c.length} SKUs · {INR(cV)}</span>
+        </div>
+      </div>
+
+      <div className="charts-grid" style={{marginBottom:16}}>
+        <div className="chart-box">
+          <div className="chart-title">Consumption Value by Class</div>
+          <CChart id="abc-val" height={200} cfg={{type:"doughnut",data:{labels:["Class A","Class B","Class C"],datasets:[{data:[aV,bV,cV],backgroundColor:["#10e8b8","#a855f7","#22c55e"],borderWidth:0}]},options:{...CHART_OPTS,cutout:"60%"}}}/>
+        </div>
+        <div className="chart-box">
+          <div className="chart-title">SKU Count by Class</div>
+          <CChart id="abc-cnt" height={200} cfg={{type:"doughnut",data:{labels:["Class A","Class B","Class C"],datasets:[{data:[a.length,b.length,c.length],backgroundColor:["#10e8b8","#a855f7","#22c55e"],borderWidth:0}]},options:{...CHART_OPTS,cutout:"60%"}}}/>
+        </div>
+      </div>
+
+      <div className="tw">
+        <div className="tw-toolbar">
+          <select className="filt filt-sm" value={cls} onChange={e=>setCls(e.target.value)}><option value="">All Classes</option><option>A</option><option>B</option><option>C</option></select>
+          {cls&&<button className="btn btn-g btn-sm" onClick={()=>setCls("")}>Clear</button>}
+          <div className="tw-count">{filtered.length} products</div>
+        </div>
+        <div className="tw-scroll"><table>
+          <thead><tr><th>#</th><th>SKU</th><th>Product</th><th>Brand</th><th>Category</th><th className="tr">Unit Cost</th><th className="tr">Consumed (6m)</th><th className="tr">Consumption Value</th><th className="tr">Cumulative %</th><th>Class</th></tr></thead>
+          <tbody>{filtered.map((p,i)=>(
+            <tr key={i}>
+              <td className="tc col-t3">{abc.indexOf(p)+1}</td>
+              <td className="tc col-ac2">{p.sku}</td><td className="bold tnw">{p.name}</td><td className="col-t3">{p.brand}</td>
+              <td><span className="b b-cat">{p.cat}</span></td>
+              <td className="tr tc">{INR(p.cost)}</td><td className="tr tc">{N(p.consumed)}</td>
+              <td className="tr bold">{INR(p.consVal)}</td>
+              <td className="tr tc">{p.cumPct}%</td>
+              <td><Bdg v={p.abc} cls={`b-abc-${p.abc.toLowerCase()}`}/></td>
+            </tr>
+          ))}</tbody>
+        </table></div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  REPORTS
+// ══════════════════════════════════════════════════════
+function Reports({inv,pos,supPerf,abc,slow,kpis,insights,exceptions,setTab}){
+  const [view,setView]=useState("catalog");
+  const ds=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+  const catBreak=useMemo(()=>{const m={};inv.forEach(p=>{if(!m[p.cat])m[p.cat]={cat:p.cat,skus:0,units:0,value:0};m[p.cat].skus++;m[p.cat].units+=p.qty;m[p.cat].value+=p.value;});return Object.values(m).sort((a,b)=>b.value-a.value);},[inv]);
+
+  const REPORTS=[
+    {id:"executive",icon:"📊",name:"Executive Inventory Report",desc:"Full KPI summary, inventory health, category breakdown, and top management observations."},
+    {id:"replenishment",icon:"↻",name:"Replenishment Report",desc:"Products requiring immediate or upcoming replenishment with recommended order quantities.",tab:"replenishment"},
+    {id:"stockout",icon:"📉",name:"Stockout Risk Report",desc:"Products ranked by days-of-inventory remaining. CRITICAL ≤3 days.",tab:"stockout"},
+    {id:"slow-moving",icon:"🐢",name:"Slow-Moving Inventory Report",desc:"Dead and slow-moving stock with carrying value and recommended disposal actions.",tab:"slow"},
+    {id:"supplier",icon:"🏭",name:"Supplier Performance Report",desc:"On-time delivery, fill rate, lead time, and performance score for all suppliers."},
+    {id:"abc",icon:"Ⓐ",name:"ABC Analysis Report",desc:"Pareto-based product classification by 6-month consumption value.",tab:"abc"},
+    {id:"overstock",icon:"📦",name:"Excess Inventory Report",desc:"Capital tied up in overstocked products with overstock percentage.",tab:"overstock"},
+    {id:"movements",icon:"⇄",name:"Inventory Movement Report",desc:"Full transaction register — purchases, sales, transfers, adjustments, and returns.",tab:"movements"},
+  ];
+
+  if(view==="executive") return(
+    <div>
+      <div className="sh"><button className="btn btn-g btn-sm" onClick={()=>setView("catalog")}>← Back to Catalog</button></div>
+      <div style={{background:"linear-gradient(135deg,#071a28,var(--bg2))",border:"1px solid var(--bo)",borderRadius:12,padding:"22px 26px",marginBottom:20}}>
+        <div style={{fontSize:10,letterSpacing:2,color:"var(--ac)",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>{COMPANY}</div>
+        <div style={{fontSize:22,fontWeight:700,marginBottom:4}}>Executive Inventory Intelligence Report</div>
+        <div style={{fontSize:12,color:"var(--t3)"}}>Prepared by FIIRS System &nbsp;·&nbsp; {ds}</div>
+      </div>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--t2)",letterSpacing:1.5,textTransform:"uppercase",marginBottom:10}}>1. Key Performance Indicators</div>
+      <div className="kgrid" style={{marginBottom:20}}>
+        {[["Total SKUs",N(kpis.skus),"var(--ac2)"],["Inventory Value",INR(kpis.value),"var(--ac)"],["Out of Stock",N(kpis.oos),"var(--red)"],["Low Stock",N(kpis.low),"var(--yel)"],["Overstocked",N(kpis.over),"var(--pur)"],["Avg Inv. Days",DAYS(kpis.avgInvDays),"var(--green)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.startsWith("₹")?16:24}}>{v}</div></div>
+        ))}
+      </div>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--t2)",letterSpacing:1.5,textTransform:"uppercase",marginBottom:10}}>2. Inventory Value by Category</div>
+      <div className="tw" style={{marginBottom:20}}><div className="tw-scroll"><table>
+        <thead><tr><th>Category</th><th className="tr">SKUs</th><th className="tr">Units</th><th className="tr">Value (₹)</th><th className="tr">% of Total</th></tr></thead>
+        <tbody>{catBreak.map((c,i)=><tr key={i}><td className="bold">{c.cat}</td><td className="tr tc">{N(c.skus)}</td><td className="tr tc">{N(c.units)}</td><td className="tr bold">{INR(c.value)}</td><td className="tr tc">{PCT(c.value/kpis.value*100)}</td></tr>)}</tbody>
+      </table></div></div>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--t2)",letterSpacing:1.5,textTransform:"uppercase",marginBottom:10}}>3. Key Observations</div>
+      <div className="insights-box" style={{marginBottom:20}}><div className="insights-title">Business Intelligence</div>{insights.map((ins,i)=><div key={i} className="insight-row"><div className={`insight-dot id-${ins.lv}`}/><div className="insight-text">{ins.text}</div></div>)}</div>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--t2)",letterSpacing:1.5,textTransform:"uppercase",marginBottom:10}}>4. Critical Exceptions</div>
+      <div className="tw">{exceptions.filter(e=>e.sev==="CRITICAL").map((e,i)=><div key={i} className="ex-item"><div className={`ex-bar ex-bar-${e.sev}`}/><div><div className="ex-type">{e.type}</div><div className="ex-desc">{e.desc}</div><div className="ex-action">→ {e.action}</div></div></div>)}{exceptions.filter(e=>e.sev==="CRITICAL").length===0&&<div className="empty">No critical exceptions</div>}</div>
+      <div style={{marginTop:16,padding:"12px 14px",background:"rgba(78,88,112,.1)",borderRadius:8,fontSize:11,color:"var(--t3)"}}>⚠️ <strong>Disclaimer:</strong> This report is generated from the FIIRS synthetic dataset for portfolio demonstration purposes. All company names, products, suppliers and financial figures are fictional.</div>
+    </div>
+  );
+
+  if(view==="supplier") return(
+    <div>
+      <div className="sh"><button className="btn btn-g btn-sm" onClick={()=>setView("catalog")}>← Back</button></div>
+      <div style={{background:"linear-gradient(135deg,#071a28,var(--bg2))",border:"1px solid var(--bo)",borderRadius:12,padding:"22px 26px",marginBottom:20}}>
+        <div style={{fontSize:10,letterSpacing:2,color:"var(--ac)",textTransform:"uppercase",marginBottom:6,fontFamily:"var(--mono)"}}>{COMPANY}</div>
+        <div style={{fontSize:22,fontWeight:700,marginBottom:4}}>Supplier Performance Report</div>
+        <div style={{fontSize:12,color:"var(--t3)"}}>{ds}</div>
+      </div>
+      <div className="kgrid" style={{marginBottom:16}}>
+        {[["Suppliers Evaluated",N(supPerf.length),"var(--ac2)"],["Avg On-Time %",PCT(supPerf.reduce((s,r)=>s+r.onTimePct,0)/supPerf.length),"var(--ac)"],["Avg Fill Rate",PCT(supPerf.reduce((s,r)=>s+r.fillRate,0)/supPerf.length),"var(--green)"],["Poor Performers",N(supPerf.filter(s=>s.rating==="POOR").length),"var(--red)"]].map(([l,v,c],i)=>(
+          <div key={i} className="kcard" style={{"--kc":c}}><div className="kcard-label">{l}</div><div className="kcard-val" style={{fontSize:v.includes("%")||v.startsWith("₹")?18:24}}>{v}</div></div>
+        ))}
+      </div>
+      <div className="tw"><div className="tw-scroll"><table>
+        <thead><tr><th>#</th><th>Supplier</th><th>City</th><th className="tr">Total POs</th><th className="tr">Received</th><th className="tr">Delayed</th><th className="tr">On-Time %</th><th className="tr">Fill Rate %</th><th className="tr">Avg Lead</th><th>Score</th><th>Rating</th></tr></thead>
+        <tbody>{[...supPerf].sort((a,b)=>b.score-a.score).map((s,i)=><tr key={i}><td className="tc col-t3">{i+1}</td><td className="bold">{s.name}</td><td className="col-t3">{s.city}</td><td className="tr tc">{N(s.total)}</td><td className="tr tc col-grn">{N(s.received)}</td><td className="tr tc" style={{color:(s.delayed||0)>0?"var(--red)":"var(--t3)"}}>{N(s.delayed||0)}</td><td className="tr tc">{PCT(s.onTimePct)}</td><td className="tr tc">{PCT(s.fillRate)}</td><td className="tr tc">{s.avgLead}d</td><td style={{minWidth:110}}><SBar score={s.score}/></td><td><Bdg v={s.rating}/></td></tr>)}</tbody>
+      </table></div></div>
+    </div>
+  );
+
+  return(
+    <div>
+      <div className="sh"><span className="sh-t">Report Catalog</span></div>
+      <div className="report-grid">
+        {REPORTS.map((r,i)=>(
+          <div key={i} className="report-card" onClick={()=>r.tab?setTab(r.tab):setView(r.id)}>
+            <div className="rep-icon">{r.icon}</div>
+            <div className="rep-name">{r.name}</div>
+            <div className="rep-desc">{r.desc}</div>
+            <div className="rep-actions">
+              <button className="btn btn-p btn-sm" onClick={e=>{e.stopPropagation();r.tab?setTab(r.tab):setView(r.id);}}>View Report</button>
+              <button className="btn btn-g btn-sm" onClick={e=>{e.stopPropagation();
+                if(r.id==="executive"||r.id==="supplier"||r.id==="abc") exportCSV(abc.map(p=>({SKU:p.sku,Name:p.name,ConsumptionValue:p.consVal,ABC:p.abc})),r.name.replace(/\s+/g,"_"));
+                else if(r.id==="replenishment") exportCSV(inv.filter(p=>p.urgency!=="ADEQUATE").map(p=>({SKU:p.sku,Product:p.name,CurrentStock:p.qty,InvDays:p.invDays,RecQty:p.replQty,Urgency:p.urgency})),"Replenishment");
+              }}>↓ CSV</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  MOUNT
+// ══════════════════════════════════════════════════════
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
