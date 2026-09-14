@@ -6,7 +6,7 @@ The system was designed to address common operational problems such as scattered
 
 ## 🚀 Live Demo
 
-**[Open Vendor Operations Intelligence System](https://ayushmaangangulywork-boop.github.io/vendoroperations/)**
+**[Open Vendor Operations Intelligence System](https://ayushmaangangulywork-boop.github.io/FMCG-Inventory-Intelligence-Replenishment-System/)**
 
 ### Demo Login
 
