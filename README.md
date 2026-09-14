@@ -4,7 +4,7 @@ FIIRS is a self-developed portfolio project that models how an FMCG distribution
 
 ## 🚀 Live Demo
 
-**[Open Vendor Operations Intelligence System](https://ayushmaangangulywork-boop.github.io/FMCG-Inventory-Intelligence-Replenishment-System/)**
+**[Open FIIRS — FMCG Inventory Intelligence & Replenishment System](https://ayushmaangangulywork-boop.github.io/FMCG-Inventory-Intelligence-Replenishment-System/)**
 
 > **Portfolio disclaimer:** FIIRS uses a fictional FMCG business scenario and a synthetic dataset. Company names, locations, products, suppliers, purchase orders, and financial figures are fictional. This project is for demonstration and learning purposes; it is not a production deployment.
 
